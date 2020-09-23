@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "transcript-app-290409": {
+      "hosting": {
+        "TranscriptApp": [
+          "transcript-app-290409"
+        ]
+      }
+    }
+  }
+}

@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+/* Import the fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+body {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    margin:0;
+}
+
+a {
+    color: black;
+    transition: all ease 1s;
+    -moz-transition: all ease 1s;
+    -webkit-transition: all ease 1s;
+}
+a:hover {
+    color: #e62117;
+}
