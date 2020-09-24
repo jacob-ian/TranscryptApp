@@ -2,10 +2,22 @@
 /* Import the fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
+:root {
+    --font-main: black;
+    --font-accent: #e62117;
+    --header-height: 120px;
+    --footer-height: 100px;
+}
+
+html {
+    height: 100%;
+}
+
 body {
     font-family: "Poppins", sans-serif;
     font-weight: 400;
     margin:0;
+    -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -15,5 +27,5 @@ a {
     -webkit-transition: all ease 1s;
 }
 a:hover {
-    color: #e62117;
+    color: var(--font-accent);
 }

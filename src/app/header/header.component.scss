@@ -1,6 +1,8 @@
 .header {
     text-align: center;
-    margin: 50px 0;
+    margin: 50px 0 100px;
+    flex: 1;
+    height: var(--header-height)
 }
 
 .title a {
@@ -12,4 +14,8 @@
 
 .description {
     margin-top: 20px;
+}
+
+.red {
+    color: var(--font-accent)
 }

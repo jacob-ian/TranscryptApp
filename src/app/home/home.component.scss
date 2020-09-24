@@ -5,34 +5,44 @@
 }
 
 .text-box {
-    height: 2em;
+    height: 3em;
+    padding-left: 10px;
+    padding-right: 10px;
     width: 80%;
     background-color:rgba(0,0,0,0.1);
-    border-radius: 5px;
-    border: 1px rgba(0,0,0,0.4) solid;
+    border-radius: 20px;
+    border: 1px rgba(0,0,0,0) solid;
     transition: all ease 0.4s;
     -webkit-transition: all ease 0.4s;
     -moz-transition: all ease 0.4s;
+    outline: none;
+    text-align: left;
 }
 
     .text-box:focus {
         background-color: white;
+        border-color: rgba(0,0,0,0.2);
     }
 
 .submit-button {
     width: auto;
-    border-radius:5px;
+    border-radius:20px;
     border: 1px rgba(0,0,0,0.4) solid;
+    border: none;
     outline:none;
-    background-color:  #e62117;
+    background-color: var(--font-accent);
     color: white;
-    padding-top:10px;
-    padding-bottom: 10px;
+    padding-top:15px;
+    padding-bottom: 15px;
     padding-left:15px;
     padding-right: 15px;
-    margin-top: 10px;
+    margin-top: 20px;
     font-weight: 500;
+    transition: all ease 0.4s;
+    -moz-transition: all ease 0.4s;
+    -webkit-transition: all ease 0.4s;
 }
     .submit-button:hover {
         cursor: pointer;
+        background-color: #9a1313
     }

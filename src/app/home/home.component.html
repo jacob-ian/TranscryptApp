@@ -1,6 +1,8 @@
 <div class="form-container">
     <form [formGroup]="urlForm" (ngSubmit)="onSubmit(urlForm.value)">
-        <input id="url" type="url" class="text-box" />
+        <input id="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
+            (change)="urlChanged($event)" />
+        <div class="valid-icon"><img /></div>
         <button class="submit-button" type="submit">Transcribe</button>
     </form>
 </div>
