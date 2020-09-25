@@ -3,7 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
 :root {
-    --font-main: black;
+    --color-primary: #e62117;
+    --color-secondary: #292f36;
+    --font-main: #292f36;
     --font-accent: #e62117;
     --header-height: 120px;
     --footer-height: 100px;
@@ -17,6 +19,7 @@ body {
     font-family: "Poppins", sans-serif;
     font-weight: 400;
     margin:0;
+    color: var(--font-main);
     -webkit-font-smoothing: antialiased;
 }
 
@@ -28,4 +31,8 @@ a {
 }
 a:hover {
     color: var(--font-accent);
+}
+
+.content {
+    min-height: 25vh;
 }

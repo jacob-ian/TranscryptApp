@@ -1,8 +1,29 @@
 <div class="form-container">
     <form [formGroup]="urlForm" (ngSubmit)="onSubmit(urlForm.value)">
-        <input id="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
-            (change)="urlChanged($event)" />
-        <div class="valid-icon"><img /></div>
-        <button class="submit-button" type="submit">Transcribe</button>
+        <div class="url-input-container">
+            <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
+                (input)="urlChanged($event)" required />
+            <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-valid" alt="URL is Valid">
+                <use xlink:href="assets/svg/done.svg#img"></use>
+            </svg>
+            <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-invalid" alt="URL is Invalid">
+                <use xlink:href="assets/svg/error.svg#img"></use>
+            </svg>
+            <div id="url-loading-ring" class="lds-ring hidden">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+        <div class="url-error">
+            <svg viewBox="0 0 24 24" class="url-error-svg" id="url-invalid" alt="URL is Invalid">
+                <use xlink:href="assets/svg/error.svg#img"></use>
+            </svg>
+            <span class="url-error-message">{{errorMessage}}</span>
+        </div>
+        <div class="form-options"></div>
+        <button class="submit-button" type="submit" disabled>Get Transcript</button>
     </form>
 </div>
