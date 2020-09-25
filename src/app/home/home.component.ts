@@ -130,10 +130,8 @@ export class HomeComponent implements OnInit {
         // Call the invalid URL method
         this.invalidUrl();
 
-        const message = err.message;
-
         // Display the mesage to the user
-        this.displayError(message);
+        this.displayError(err.message);
 
         return;
       }
@@ -219,25 +217,12 @@ export class HomeComponent implements OnInit {
           responseType: 'text',
         })
         .toPromise();
-    } catch {
-      // Return that Youtube couldn't be accessed
-      const error = {
-        error: 'server_error',
-        message:
-          "Request couldn't be processed due to being unable to reach YouTube.",
-      };
-      throw error;
-    }
-    // Get the body of the response
-    const body = JSON.parse(response);
+    } catch (error) {
+      // Check for an error code
+      const code = error.status;
 
-    // Check if there is an error in the body
-    if (body.error) {
-      // Get the error code
-      const code = body.error.code;
-
+      // If the error is 404, that means the video doesn't exist
       if (code === 404) {
-        // The video couldn't be found
         const err = {
           error: 'invalid_video',
           message: 'The requested YouTube video URL is invalid.',
@@ -247,11 +232,15 @@ export class HomeComponent implements OnInit {
         const err = {
           error: 'server_error',
           message:
-            'There was a problem accessing YouTube. Please try again later.',
+            'There was a problem accessing YouTube to verify the video. Please try again later.',
         };
         throw err;
       }
+
+      // Return that Youtube couldn't be accessed
     }
+    // Get the body of the response
+    const body = JSON.parse(response);
 
     // Check if there are any captions
     if (!body.items.length) {
@@ -259,7 +248,7 @@ export class HomeComponent implements OnInit {
       const err = {
         error: 'no_captions',
         message:
-          'Unfortunately a transcript cannot be created as there are no captions associated with the requested YouTube video.',
+          'A transcript cannot be created as the requested video has no captions.',
       };
       throw err;
     }
