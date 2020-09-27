@@ -17,12 +17,11 @@
 
 .text-box {
     min-height: 3em;
-    max-height: 3em;
     padding-left: 10px;
     padding-right: 10px;
     width: 80%;
     background-color:rgba(0,0,0,0.1);
-    border-radius: 20px;
+    border-radius: 25px;
     border: 1px rgba(0,0,0,0) solid;
     transition: all ease 0.4s;
     -webkit-transition: all ease 0.4s;
@@ -31,6 +30,8 @@
     text-align: left;
     order: 1;
     flex: 1;
+    font-family: var(--font-family);
+    font-size: 1em;
 }
 
     .text-box:focus {
@@ -53,22 +54,23 @@
 
 .submit-button {
     width: auto;
-    border-radius:20px;
-    border: 1px rgba(0,0,0,0.4) solid;
+    border-radius:25px;
     border: none;
     outline:none;
     background-color: var(--font-accent);
     color: white;
     padding-top:15px;
     padding-bottom: 15px;
-    padding-left:15px;
-    padding-right: 15px;
-    margin-top: 20px;
+    padding-left:20px;
+    padding-right: 20px;
+    margin-top: 15px;
     font-weight: 500;
     transition: all ease 0.4s;
     -moz-transition: all ease 0.4s;
     -webkit-transition: all ease 0.4s;
-    order:3 ;
+    order: 5;
+    font-family: var(--font-family);
+    font-size: 1em;
 }
     .submit-button:hover {
         cursor: pointer;
@@ -86,14 +88,14 @@
         }
 
 .url-validation-svg {
-    height: 25px;
+    height: 30px;
     position: absolute;
     fill: var(--color-secondary);
     transition: all ease 0.2s;
     -webkit-transition: all ease 0.2s;
     -moz-transition: all ease 0.2s;
     right: 10%;
-    margin-top: 8px;
+    margin-top: 10px;
     opacity: 0;
 }
 
@@ -116,9 +118,9 @@
     display: inline-block;
     position: absolute;
     right: 10%;
-    margin-top: 8px;
-    width: 25px;
-    height: 25px;
+    margin-top: 10px;
+    width: 30px;
+    height: 30px;
   }
   .lds-ring div {
     box-sizing: border-box;
@@ -170,6 +172,43 @@
         order: 2;
         font-size: 0.9em
     }
+
     .url-error-show {
         display: flex;
+    }
+.url-caption-box {
+    order: 4;
+    display: none;
+    margin: 35px 0;
+}
+    .show-select {
+        display: block;
+    }
+
+    .url-caption-box label {
+        margin-right: 15px;
+    }
+
+    .url-caption-select {
+        margin-left: 15px;
+    }
+
+.caption-select {
+    border-radius: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 10px;
+    outline: none;
+    border: var(--font-main) 1px solid;
+    font-size: 0.9em;
+    font-family: var(--font-family);
+    position: relative;
+}
+
+    .caption-select select {
+        display: none;
+    }
+    .caption-select:focus {
+        outline: none;
     }

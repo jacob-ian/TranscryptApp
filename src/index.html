@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>transcrypt: Download YouTube Video Transcripts</title>
+  <title>Download YouTube Video Transcripts | transcrypt</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -14,6 +14,29 @@
 <body>
   <app-root></app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-analytics.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o",
+      authDomain: "transcript-app-290409.firebaseapp.com",
+      databaseURL: "https://transcript-app-290409.firebaseio.com",
+      projectId: "transcript-app-290409",
+      storageBucket: "transcript-app-290409.appspot.com",
+      messagingSenderId: "153388996756",
+      appId: "1:153388996756:web:08ac13df83b49a2eeb3c81",
+      measurementId: "G-C7XF9CKB3V"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
 </body>
 
 </html>

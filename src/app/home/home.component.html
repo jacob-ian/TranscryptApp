@@ -1,5 +1,5 @@
 <div class="form-container">
-    <form [formGroup]="urlForm" (ngSubmit)="onSubmit(urlForm.value)">
+    <form [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
         <div class="url-input-container">
             <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
                 (input)="urlChanged($event)" required />
@@ -23,7 +23,13 @@
             </svg>
             <span class="url-error-message">{{errorMessage}}</span>
         </div>
-        <div class="form-options"></div>
-        <button class="submit-button" type="submit" disabled>Get Transcript</button>
+        <div id='url-caption-box' class="url-caption-box">
+            <label for="url-caption-select">Select a Subtitle Track/Language:</label>
+            <select class="caption-select" id="url-caption-select" name="captions" (input)="captionSelected($event)"
+                formControlName="captions" required>
+                <option *ngFor="let c of captions" value="{{c.id}}">{{c.name}}</option>
+            </select>
+        </div>
+        <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
     </form>
 </div>

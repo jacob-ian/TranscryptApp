@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ViewChild, ElementRef, Renderer2, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+
+import bcp47 from 'bcp47';
+import iso6391 from 'iso-639-1';
 
 /**
- * A YouTube API Search result
+ * An information object for a caption track.
  */
-interface CaptionsList {
-  captionsCount: number;
-  captions: CaptionId[];
-}
-
-interface CaptionId {
-  etag: string;
+interface CaptionInfo {
   id: string;
+  language: string;
+  name: string;
+  kind: string;
 }
 
 @Component({
@@ -33,16 +34,27 @@ export class HomeComponent implements OnInit {
   // The text input for URLS
   urlInput: HTMLElement;
 
+  // The captions selector
+  captionSelect: HTMLElement;
+
+  // The submit button
+  submitButton: HTMLElement;
+
+  // Create a variable for the error message
   @Input() errorMessage: string;
+
+  // Create a variable for the captions options
+  @Input() captions: CaptionInfo[] = [];
 
   // Constructor method
   constructor(
     private formBuilder: FormBuilder,
     private renderer: Renderer2,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {
     this.urlForm = this.formBuilder.group({
-      url: '',
+      captions: '',
     });
   }
 
@@ -52,7 +64,14 @@ export class HomeComponent implements OnInit {
     this.invalidSvg = document.getElementById('url-invalid');
     this.loadingRing = document.getElementById('url-loading-ring');
 
+    // Get the URL input field
     this.urlInput = document.getElementById('url-input');
+
+    // Get the caption reel selector
+    this.captionSelect = document.getElementById('url-caption-box');
+
+    // Get the submit button
+    this.submitButton = document.getElementById('url-submit');
   }
 
   /**
@@ -60,11 +79,13 @@ export class HomeComponent implements OnInit {
    * @param data The data from the submitted form
    */
   onSubmit(data) {
-    // Get the URL from the form
-    const url = data.url;
+    // Get the captions track id
+    const captionId = this.urlForm.controls['captions'].value;
 
-    // Get the captions track index
-    const captions = data.captions;
+    // Route to a different page
+    this.router.navigate(['/transcript'], {
+      queryParams: { captionId },
+    });
   }
 
   /**
@@ -92,6 +113,28 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Fired with a caption track has been selected
+   * @param event The event of the caption selection
+   */
+  captionSelected(event) {
+    // Get the value of the caption
+    var value = event.target.value;
+
+    // Check if there is a value or if it is empty
+    if (value.length) {
+      // We can enable the submit button
+      this.displaySubmit();
+    } else {
+      // We should hide the submit button
+      this.hideSubmit();
+    }
+  }
+
+  /**
+   * Validate that the inputted URL links to an actual YouTube video
+   * @param url The inputted URL to be validated
+   */
   async validateUrl(url: string) {
     // Create an example of a valid URL and get its length
     const validUrl = 'https://www.youtube.com/watch?v=';
@@ -100,22 +143,19 @@ export class HomeComponent implements OnInit {
     // Check if the first part of the url string matches the valid URL
     if (url.slice(0, lenValidUrl) === validUrl) {
       // We have a valid URL so far, now we need to check that the video requested exists
-      // Get the YouTube video id from the URL Search Params
-      var id = url.slice(lenValidUrl);
-
-      // Check if there are any other parameters in the URL
-      if (id.includes('&')) {
-        id = id.slice(0, id.indexOf('&'));
-      }
-
-      // Check the length of the id
-      if (!id.length) {
-        // The id doesn't exist, therefore it is invalid
+      // Check that there is lenValidUrl + 11 characters in the URL
+      if (url.length < lenValidUrl + 11) {
+        // There isn't a valid video ID
         this.invalidUrl();
+
+        // Stop the validation
+        return;
       } else {
-        // Clear the invalid styling
+        // The URL is valid so far
         this.clearValidationStyles();
       }
+      // Get the YouTube video id from the URL Search Params
+      var id = url.slice(lenValidUrl, lenValidUrl + 11);
 
       // Begin the loading animation
       this.startLoadingAnimation();
@@ -143,6 +183,8 @@ export class HomeComponent implements OnInit {
       this.validUrl();
 
       // Display the caption tracks to be chosen from
+      this.captions = captionsList;
+      this.displayCaptions();
     } else {
       // The URL is invalid, call the invalid URL function
       this.invalidUrl();
@@ -187,6 +229,12 @@ export class HomeComponent implements OnInit {
 
     // Hide the error
     this.hideError();
+
+    // Hide the captions reel
+    this.hideCaptions();
+
+    // Hide the submit button
+    this.hideSubmit();
   }
 
   startLoadingAnimation() {
@@ -204,13 +252,25 @@ export class HomeComponent implements OnInit {
    * @param id The YouTube Video ID to be searched for
    * @returns a promise to a Search Result object
    */
-  async apiListCaptions(id: string): Promise<CaptionsList> {
+  async apiListCaptions(id: string): Promise<CaptionInfo[]> {
+    // Get an access token from the refresh token
+    try {
+      var tokenResponse = await this.http
+        .post('https://oauth2.googleapis.com/token', {
+          grant_type: 'refresh_token',
+          client_id: process.env.CLIENT_ID,
+          client_secret: process.env.CLIENT_SECRET,
+          refresh_token: process.env.REFRESH_TOKEN,
+        })
+        .toPromise();
+    } catch (err) {}
+
     try {
       // Get a response from the API
       var response = await this.http
         .get('https://www.googleapis.com/youtube/v3/captions', {
           params: {
-            part: 'id',
+            part: 'snippet',
             videoId: id,
             key: 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o',
           },
@@ -253,23 +313,94 @@ export class HomeComponent implements OnInit {
       throw err;
     }
 
-    // Create an array of captions IDs
-    var captions: CaptionId[] = [];
+    // Create an array of captions infos
+    var captions: CaptionInfo[] = [];
 
-    body.items.forEach((caption) => {
-      const captionId: CaptionId = {
-        id: caption.id,
-        etag: caption.etag,
+    // Loop through the body items to fetch the caption information
+    body.items.forEach((item) => {
+      // Get the snippet
+      const snippet = item.snippet;
+
+      // Check if there is a name provided for the caption
+      if (snippet.name !== undefined && snippet.name !== '') {
+        // We can use the provided name
+        var name = `${snippet.name}`;
+      } else {
+        // The name isn't provided, so we must create one
+        // We can use the language of the track and whether or not it has been
+        // auto-generated to form the name
+
+        // Check if it has been autogenerated
+        if (snippet.trackKind === 'standard') {
+          // The additional generated string can be left empty
+          var autoGen = '';
+        } else if (snippet.trackKind === 'asr') {
+          // We can add the auto generated disclaimer
+          var autoGen = ' (Auto-generated)';
+        }
+
+        // Parse the BCP language code
+        const lang = bcp47.parse(snippet.language).langtag.language.language;
+
+        // Get the name of the language
+        const language = iso6391.getName(lang);
+
+        // The name of the track can now be created
+        var name = `${language}${autoGen}`;
+      }
+
+      // Create the info object
+      const captionInfo: CaptionInfo = {
+        id: item.id,
+        language: snippet.language,
+        name,
+        kind: snippet.trackKind,
       };
-      captions.push(captionId);
+
+      // Add the caption info object to the array
+      captions.push(captionInfo);
     });
 
-    // Create an output object
-    const output: CaptionsList = {
-      captionsCount: body.items.length,
-      captions,
-    };
-    return output;
+    // Sort the array alphabetically
+    captions = captions.sort((a, b) => {
+      // Return the sorting function
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+
+    // Return the array of caption infos
+    return captions;
+  }
+
+  /**
+   * Display a selectable list of captions to convert to transcripts to the user
+   */
+  displayCaptions() {
+    // Add the show class to the select object
+    this.renderer.addClass(this.captionSelect, 'show-select');
+  }
+
+  /**
+   * Hide the captions selector since the valid URL has been removed.
+   */
+  hideCaptions() {
+    // Remove the show class from the select object
+    this.renderer.removeClass(this.captionSelect, 'show-select');
+  }
+
+  /**
+   * Display the submit button since the input data is now all valid.
+   */
+  displaySubmit() {
+    // Remove the disabled attribute from the button
+    this.submitButton.removeAttribute('disabled');
+  }
+
+  /**
+   * Hide the submit button since the URL was removed
+   */
+  hideSubmit() {
+    // Add the disabled attribute from the button
+    this.submitButton.setAttribute('disabled', 'true');
   }
 
   /**
