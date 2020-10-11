@@ -6,6 +6,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 import bcp47 from 'bcp47';
 import iso6391 from 'iso-639-1';
+import { AngularFireFunctions } from '@angular/fire/functions';
 
 /**
  * An information object for a caption track.
@@ -41,17 +42,20 @@ export class HomeComponent implements OnInit {
   submitButton: HTMLElement;
 
   // Create a variable for the error message
-  @Input() errorMessage: string;
+  @Input()
+  errorMessage: string;
 
   // Create a variable for the captions options
-  @Input() captions: CaptionInfo[] = [];
+  @Input()
+  captions: CaptionInfo[] = [];
 
   // Constructor method
   constructor(
     private formBuilder: FormBuilder,
     private renderer: Renderer2,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private functions: AngularFireFunctions
   ) {
     this.urlForm = this.formBuilder.group({
       captions: '',
@@ -253,16 +257,10 @@ export class HomeComponent implements OnInit {
    * @returns a promise to a Search Result object
    */
   async apiListCaptions(id: string): Promise<CaptionInfo[]> {
-    // Get an access token from the refresh token
+    // Get an access token from the cloud function
+    var getAccessToken = this.functions.httpsCallable('getAccessToken');
     try {
-      var tokenResponse = await this.http
-        .post('https://oauth2.googleapis.com/token', {
-          grant_type: 'refresh_token',
-          client_id: process.env.CLIENT_ID,
-          client_secret: process.env.CLIENT_SECRET,
-          refresh_token: process.env.REFRESH_TOKEN,
-        })
-        .toPromise();
+      var token = getAccessToken({}).toPromise();
     } catch (err) {}
 
     try {
@@ -273,6 +271,10 @@ export class HomeComponent implements OnInit {
             part: 'snippet',
             videoId: id,
             key: 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o',
+          },
+
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
           responseType: 'text',
         })
