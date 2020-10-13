@@ -25,18 +25,21 @@ async function getAccessToken(): Promise<string> {
     '1//04BAACVN9X9r6CgYIARAAGAQSNwF-L9Ir-eu3kLrjuWKCtiaevppuVbQ7uPgPsNdBzPgDlvL9KnHMHepbE2ywU1tJfbQyhkQVOrc';
 
   // Create a request using URLSearchParams
-  const params = new URLSearchParams();
-  params.append('client_id', client_id);
-  params.append('client_secret', client_secret);
-  params.append('grant_type', 'refresh_token');
-  params.append('refresh_token', refresh_token);
+  const params = new URLSearchParams({
+    grant_type: 'refresh_token',
+    client_id,
+    client_secret,
+    refresh_token,
+  });
 
   // Send the request to Google's OAuth service and get a response
   try {
-    var response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      body: params.toString(),
-    });
+    var response = await fetch(
+      `https://oauth2.googleapis.com/token?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   } catch {
     // Throw an internal error
     const err = {

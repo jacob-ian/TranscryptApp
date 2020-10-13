@@ -166,7 +166,7 @@ export class HomeComponent implements OnInit {
 
       // Access the YouTube Video search API to check if the video exists
       try {
-        var captionsList = await this.apiListCaptions(id);
+        var captionsList = await this.listCaptions(id);
       } catch (err) {
         // Stop the loading animation
         this.stopLoadingAnimation();
@@ -256,56 +256,19 @@ export class HomeComponent implements OnInit {
    * @param id The YouTube Video ID to be searched for
    * @returns a promise to a Search Result object
    */
-  async apiListCaptions(id: string): Promise<CaptionInfo[]> {
-    // Get an access token from the cloud function
-    var getAccessToken = this.functions.httpsCallable('getAccessToken');
+  async listCaptions(id: string): Promise<CaptionInfo[]> {
+    // Define the firebase cloud function for getting the list of captions
+    var getCaptionsList = this.functions.httpsCallable('getCaptionsList');
+
+    // Get the list of captions
     try {
-      var token = getAccessToken({}).toPromise();
-    } catch (err) {}
-
-    try {
-      // Get a response from the API
-      var response = await this.http
-        .get('https://www.googleapis.com/youtube/v3/captions', {
-          params: {
-            part: 'snippet',
-            videoId: id,
-            key: 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o',
-          },
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          responseType: 'text',
-        })
-        .toPromise();
-    } catch (error) {
-      // Check for an error code
-      const code = error.status;
-
-      // If the error is 404, that means the video doesn't exist
-      if (code === 404) {
-        const err = {
-          error: 'invalid_video',
-          message: 'The requested YouTube video URL is invalid.',
-        };
-        throw err;
-      } else {
-        const err = {
-          error: 'server_error',
-          message:
-            'There was a problem accessing YouTube to verify the video. Please try again later.',
-        };
-        throw err;
-      }
-
-      // Return that Youtube couldn't be accessed
+      var list = await getCaptionsList({ videoId: id }).toPromise();
+    } catch (err) {
+      console.log(err);
     }
-    // Get the body of the response
-    const body = JSON.parse(response);
 
     // Check if there are any captions
-    if (!body.items.length) {
+    if (!list.items.length) {
       // Throw an error that there aren't any captions associated with this video
       const err = {
         error: 'no_captions',
@@ -319,7 +282,7 @@ export class HomeComponent implements OnInit {
     var captions: CaptionInfo[] = [];
 
     // Loop through the body items to fetch the caption information
-    body.items.forEach((item) => {
+    list.items.forEach((item) => {
       // Get the snippet
       const snippet = item.snippet;
 
