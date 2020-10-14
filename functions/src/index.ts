@@ -7,134 +7,110 @@
  */
 
 import * as functions from 'firebase-functions';
+import { google } from 'googleapis';
 import fetch from 'node-fetch';
 import { URLSearchParams } from 'url';
 
 /**
- * Exchange a refresh token for an access token to be used with the YouTube API.
- * @returns a string with the access token.
+ * Create an OAuth2.0 client.
  */
-async function getAccessToken(): Promise<string> {
-  // Define the client information
-  const client_id =
-    '153388996756-r5lhbisriii8l7s130jcqqao1fhmdmjd.apps.googleusercontent.com';
-  const client_secret = 'AV7JZxEhl10Tb75FyLGpiE7P';
+const oauth2Client = new google.auth.OAuth2(
+  '153388996756-r5lhbisriii8l7s130jcqqao1fhmdmjd.apps.googleusercontent.com',
+  'AV7JZxEhl10Tb75FyLGpiE7P',
+  'https://developers.google.com/oauthplayground'
+);
 
-  // Define the refresh token
-  const refresh_token =
-    '1//04BAACVN9X9r6CgYIARAAGAQSNwF-L9Ir-eu3kLrjuWKCtiaevppuVbQ7uPgPsNdBzPgDlvL9KnHMHepbE2ywU1tJfbQyhkQVOrc';
+// Add the refresh token to the OAuth2.0 client
+oauth2Client.setCredentials({
+  refresh_token:
+    '1//04BAACVN9X9r6CgYIARAAGAQSNwF-L9Ir-eu3kLrjuWKCtiaevppuVbQ7uPgPsNdBzPgDlvL9KnHMHepbE2ywU1tJfbQyhkQVOrc',
+});
 
-  // Create a request using URLSearchParams
-  const params = new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id,
-    client_secret,
-    refresh_token,
-  });
-
-  // Send the request to Google's OAuth service and get a response
-  try {
-    var response = await fetch(
-      `https://oauth2.googleapis.com/token?${params.toString()}`,
-      {
-        method: 'POST',
-      }
-    );
-  } catch {
-    // Throw an internal error
-    const err = {
-      code: 500,
-      error: {
-        error: 'internal_error',
-        error_description: "Couldn't access Google OAuth2.0 Service.",
-      },
-    };
-    throw err;
-  }
-
-  // Check the response status
-  if (response.ok) {
-    // Get the body of the response and return the access_token
-    var body = await response.json();
-
-    // Return the access token from the body
-    return body.access_token;
-  } else {
-    // Return the error code and reason to the client
-    var err = {
-      code: response.status,
-      error: await response.json(),
-    };
-    throw err;
-  }
-}
+// Create the YouTube API client
+const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
 /**
  * Fetch the list of captions for a YouTube video.
  */
 exports.getCaptionsList = functions.https.onCall(async (data) => {
   // Check for a videoID
-  if (!data.videoId) {
+  const videoId = data.videoId;
+
+  if (!videoId) {
     // Throw an error
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'YouTube videoId required.'
+      'YouTube Video ID required.'
     );
   }
 
-  // Get an access token from Google
+  // Access the YouTube API to get the captions list
   try {
-    var token = await getAccessToken();
+    var res = await youtube.captions.list({
+      key: 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o',
+      videoId,
+      part: ['snippet'],
+    });
+
+    // Get the data from the response
+    var items = res.data.items;
+
+    // Return the response
+    return { items };
   } catch (err) {
-    if (err.code === 500) {
-      // Return an internal error to the client
+    // Get the information from the error
+    var code = err.code;
+    var details = err.details;
+
+    // Check the code
+    if (code === 400) {
+      // Create a bad request error
+      throw new functions.https.HttpsError('invalid-argument', details);
+    } else if (code === 403) {
+      // Create a permission denied error
+      throw new functions.https.HttpsError('permission-denied', details);
+    } else if (code === 404) {
+      // Throw an error that the video doesn't exist
       throw new functions.https.HttpsError(
-        'internal',
-        err.error.error_description
-      );
-    } else if (err.code === 400) {
-      // Return an invalid request error to the client
-      throw new functions.https.HttpsError(
-        'invalid-argument',
-        err.error.error_description
-      );
-    } else if (err.code === 403) {
-      // Return an access denied error to the client
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        err.error.error_description
+        'not-found',
+        "The YouTube video doesn't exist."
       );
     } else {
-      // Return an unknown error
-      throw new functions.https.HttpsError(
-        'unknown',
-        err.error.error_description
-      );
+      throw new functions.https.HttpsError('unknown', details);
     }
   }
+});
 
-  // Get the video ID from the data object
+/**
+ * Download the caption track given its ID.
+ */
+exports.getCaptionTrack = functions.https.onCall(async (data) => {
+  // Get the videoId and the language
   const videoId = data.videoId;
+  const lang = data.lang;
 
-  // Create some parameters for the search
-  const params = new URLSearchParams();
-  params.append('videoId', videoId);
-  params.append('part', 'snippet');
-  params.append('key', 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o');
+  // Check that it is defined
+  if (!lang || !videoId) {
+    // Return an error
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'The Video ID and Language are required.'
+    );
+  }
 
-  // Make a request to the YouTube API
+  // Create the search parameters
+  var params = new URLSearchParams({
+    v: videoId,
+    lang,
+  });
+
+  // Create a fetch request to the timed text endpoint
   try {
-    var response = await fetch(
-      `https://www.googleapis.com/youtube/v3/captions?${params.toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    var res = await fetch(
+      `https://www.youtube.com/api/timedtext?${params.toString()}`
     );
   } catch {
-    // Return an internal error to the client
+    // Throw an internal error
     throw new functions.https.HttpsError(
       'internal',
       `Couldn't access the YouTube API.`
@@ -142,34 +118,31 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   }
 
   // Check the status of the response
-  if (!response.ok) {
-    // Check what the status returned was
-    if (response.status === 404) {
-      // The YouTube video doesn't exist, throw an error
-      throw new functions.https.HttpsError(
-        'not-found',
-        'The YouTube video does not exist.'
-      );
-    }
-
-    if (response.status === 400) {
-      // The request was bad
-      throw new functions.https.HttpsError(
-        'invalid-argument',
-        'A bad request was made to the YouTube API.'
-      );
-    }
-
-    if (response.status === 403) {
-      // The bearer token must have been bad
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        'Access to the YouTube API was denied.'
-      );
+  if (!res.ok) {
+    switch (res.status) {
+      case 400:
+        throw new functions.https.HttpsError(
+          'invalid-argument',
+          'A bad request was made to YouTube.'
+        );
+      case 403:
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          `Access to YouTube was denied.`
+        );
+      case 404:
+        throw new functions.https.HttpsError(
+          'not-found',
+          `The YouTube video doesn't exist.`
+        );
     }
   }
 
-  // Return the body of the response to the client
-  var body = await response.json();
-  return { body };
+  // Get the buffer
+  var buffer = await res.buffer();
+
+  // Convert it to a string
+  var bufferString = buffer.toString();
+
+  return bufferString;
 });

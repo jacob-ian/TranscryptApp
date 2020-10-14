@@ -27,7 +27,7 @@
             <label for="url-caption-select">Select a Subtitle Track/Language:</label>
             <select class="caption-select" id="url-caption-select" name="captions" (input)="captionSelected($event)"
                 formControlName="captions" required>
-                <option *ngFor="let c of captions" value="{{c.id}}">{{c.name}}</option>
+                <option *ngFor="let c of captions" value="{{c.language}}">{{c.name}}</option>
             </select>
         </div>
         <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
