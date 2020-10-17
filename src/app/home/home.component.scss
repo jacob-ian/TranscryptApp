@@ -212,3 +212,24 @@
     .caption-select:focus {
         outline: none;
     }
+
+.url-translate-box {
+    order: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+    .translate-toggle-box {
+        flex-direction: row;
+        display: flex;
+        align-items: center;
+    }
+
+    .translate-radio {
+        margin-right: 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+

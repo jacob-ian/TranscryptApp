@@ -1,0 +1,80 @@
+.transcript-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.transcript-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 80%;
+}
+
+.transcript-config {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-self: flex-start;
+}
+    .transcript-config label {
+        margin-right: 10px;
+    }
+    .transcript-config input[type=checkbox] {
+        font-size: 1.1em;
+        transform: scale(1.4);
+        -webkit-transform: scale(1.4);
+        -moz-transform: scale(1.4);
+    }
+        .transcript-config input[type=checkbox]:checked {
+            color: var(--color-primary)
+        }
+
+.transcript-buttons {
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-self: flex-end;
+}
+
+.transcript-buttons ul {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+}
+
+.transcript-buttons button {
+    width: auto;
+    border-radius:25px;
+    border: none;
+    outline:none;
+    background-color: var(--font-accent);
+    color: white;
+    padding-top:5px;
+    padding-bottom: 5px;
+    padding-left:15px;
+    padding-right: 15px;
+    margin-right: 5px;
+    font-weight: 500;
+    transition: all ease 0.4s;
+    -moz-transition: all ease 0.4s;
+    -webkit-transition: all ease 0.4s;
+    font-family: var(--font-family);
+    font-size: 1em;
+}
+    .transcript-buttons button:hover {
+        cursor: pointer;
+        background-color: #9a1313
+    }
+
+.transcript-content {
+    border-radius: 25px;
+    border: var(--font-main) solid 1px;
+    padding: 10px;
+    width: 80%;
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+}

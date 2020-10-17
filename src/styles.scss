@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 /* Import the fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400&Roboto:wght@300;400&display=swap');
 
 :root {
     --color-primary: #e62117;
@@ -32,6 +32,11 @@ a {
 }
 a:hover {
     color: var(--font-accent);
+}
+
+p {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .content {

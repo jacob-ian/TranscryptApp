@@ -30,6 +30,19 @@
                 <option *ngFor="let c of captions" value="{{c.language}}">{{c.name}}</option>
             </select>
         </div>
+        <div class="url-translate-box">
+            <div class="translate-toggle-label">Translate the Transcript?:</div>
+            <div class="translate-toggle-box">
+                <div class="translate-radio">
+                    <label for="translate-yes">Yes:</label>
+                    <input id="translate-yes" type="radio" name="translate-toggle" value="true" />
+                </div>
+                <div class="translate-radio">
+                    <label for="translate-no">No:</label>
+                    <input id="translate-no" type="radio" name="translate-toggle" value="false" />
+                </div>
+            </div>
+        </div>
         <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
     </form>
 </div>

@@ -1,2 +1,19 @@
-<p>transcript works!</p>
-<textarea>{{transcript}}</textarea>
+<div class="transcript-container">
+    <div class="transcript-options">
+        <div class="transcript-config">
+            <label for="transcript-timestamps">Show Timestamps:</label>
+            <input id="transcript-timestamps" type="checkbox" (change)="toggleTimestamp($event)" />
+        </div>
+        <div class="transcript-buttons">
+            <div>Download as:</div>
+            <ul>
+                <li><button>PDF</button></li>
+                <li><button>TXT</button></li>
+                <li><button>SRT</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="transcript-content" id="transcript-content">
+        {{transcript}}
+    </div>
+</div>

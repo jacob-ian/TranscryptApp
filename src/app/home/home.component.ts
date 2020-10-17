@@ -5,10 +5,10 @@ import { FormBuilder } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { environment } from 'src/environments/environment';
 
 import * as bcp47 from 'bcp47';
 import iso6391 from 'iso-639-1';
+import { parse as parseUrl } from 'query-string'
 
 /**
  * An information object for a caption track.
@@ -65,9 +65,7 @@ export class HomeComponent implements OnInit {
     this.urlForm = this.formBuilder.group({
       captions: '',
     });
-    if (environment.useLocalFunctions) {
-      this.functions.useFunctionsEmulator('http://localhost:5000');
-    }
+    this.functions.useFunctionsEmulator('http://localhost:5000')
   }
 
   ngOnInit(): void {
@@ -148,60 +146,82 @@ export class HomeComponent implements OnInit {
    * @param url The inputted URL to be validated
    */
   async validateUrl(url: string) {
-    // Create an example of a valid URL and get its length
-    const validUrl = 'https://www.youtube.com/watch?v=';
-    const lenValidUrl = validUrl.length;
+    // Create an array of valid YouTube urls and protocols
+    const protocols = ['http','https'];
+    const validUrls = ['www.youtube.com/watch', 'youtu.be/'];
 
-    // Check if the first part of the url string matches the valid URL
-    if (url.slice(0, lenValidUrl) === validUrl) {
-      // We have a valid URL so far, now we need to check that the video requested exists
-      // Check that there is lenValidUrl + 11 characters in the URL
-      if (url.length < lenValidUrl + 11) {
-        // There isn't a valid video ID
-        this.invalidUrl();
+    // Split the URL and get its protocol
+    try {
+      var urlSplit = url.split('://');
+    } catch (err) {
+      // The URL is invalid since the '://' isn't included
+      return this.invalidUrl();
+    }
 
-        // Stop the validation
-        return;
-      } else {
-        // The URL is valid so far
-        this.clearValidationStyles();
-      }
-      // Get the YouTube video id from the URL Search Params
-      var id = url.slice(lenValidUrl, lenValidUrl + 11);
+    // Get the URL protocol
+    const protocol = urlSplit[0];
+    if(!protocols.includes(protocol)){
+      // The URL is invalid
+      return this.invalidUrl();
+    }
 
-      // Begin the loading animation
-      this.startLoadingAnimation();
+    // Get the remaining part of the URL
+    const remains = urlSplit[1];
 
-      // Access the YouTube Video search API to check if the video exists
-      try {
-        var captionsList = await this.listCaptions(id);
-        console.log(captionsList);
-      } catch (err) {
-        // Stop the loading animation
-        this.stopLoadingAnimation();
+    // Create a variable for videoId
+    var videoId: any = '';
 
-        // Call the invalid URL method
-        this.invalidUrl();
+    // Check which URL is used
+    if(remains.includes(validUrls[0])){
+      const query = remains.split('?')[1];
 
-        // Display the mesage to the user
-        this.displayError(err.message);
+      // This is the standard URL. Decode the URL and get the 'v' parameter for the videoId
+      const decodedUrl = parseUrl(query);
+      videoId = decodedUrl.v;
 
-        return;
-      }
+    } else if (remains.includes(validUrls[1])) {
+      // This is the mobile/shortened URL, the videoId is what is after the last slash
+      videoId = remains.split('/')[1];
+    } else {
+      // The URL is invalid
+      return this.invalidUrl();
+    }
 
+    // Check the length of the VideoId to make sure it is valid
+    if(videoId.length !== 11){
+      // The videoId is invalid
+      return this.invalidUrl();
+    }
+
+    // Clear all the validation styling
+    this.clearValidationStyles();
+
+    // Start the loading animation
+    this.startLoadingAnimation();
+
+    // Access the YouTube Video search API to check if the video exists
+    try {
+      var captionsList = await this.listCaptions(videoId);
+    } catch (err) {
       // Stop the loading animation
       this.stopLoadingAnimation();
 
-      // Set the url as valid
-      this.validUrl();
-
-      // Display the caption tracks to be chosen from
-      this.captions = captionsList;
-      this.displayCaptions();
-    } else {
-      // The URL is invalid, call the invalid URL function
+      // Call the invalid URL method
       this.invalidUrl();
+
+      // Display the mesage to the user
+      return this.displayError(err.message);
     }
+
+    // Stop the loading animation
+    this.stopLoadingAnimation();
+
+    // Set the url as valid
+    this.validUrl();
+
+    // Display the caption tracks to be chosen from
+    this.captions = captionsList;
+    this.displayCaptions();
   }
 
   /**
@@ -278,10 +298,13 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       // Get the error message
       var message = error.message;
+      console.log(error.details)
 
       // Return the message
       throw { message };
     }
+
+    console.log(list)
 
     // Get the items from the list
     const items = list.items;
