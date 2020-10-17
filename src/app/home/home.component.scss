@@ -176,10 +176,11 @@
     .url-error-show {
         display: flex;
     }
+
 .url-caption-box {
     order: 4;
     display: none;
-    margin: 35px 0;
+    margin: 25px 0;
 }
     .show-select {
         display: block;
@@ -216,20 +217,28 @@
 .url-translate-box {
     order: 5;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    margin: 25px 0;
+}
+
+.url-translate-box .translate-toggle-label {
+    margin-right: 20px;
+}
+
+.url-translate-box .translate-toggle-box {
+    flex-direction: row;
+    display: flex;
     align-items: center;
 }
 
-    .translate-toggle-box {
-        flex-direction: row;
-        display: flex;
-        align-items: center;
-    }
+.url-translate-box .translate-radio {
+    margin-right: 25px;
+    display: flex;
+    flex-direction: row;
+}
 
-    .translate-radio {
-        margin-right: 30px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
+.url-translate-box .translate-radio label {
+    font-size: 0.9em;
+}
 

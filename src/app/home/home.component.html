@@ -24,14 +24,14 @@
             <span class="url-error-message">{{errorMessage}}</span>
         </div>
         <div id='url-caption-box' class="url-caption-box">
-            <label for="url-caption-select">Select a Subtitle Track/Language:</label>
+            <label for="url-caption-select">Select a Captions Track:</label>
             <select class="caption-select" id="url-caption-select" name="captions" (input)="captionSelected($event)"
                 formControlName="captions" required>
-                <option *ngFor="let c of captions" value="{{c.language}}">{{c.name}}</option>
+                <option *ngFor="let c of captions.captions" [attr.value]='c.query'>{{c.name}}</option>
             </select>
         </div>
         <div class="url-translate-box">
-            <div class="translate-toggle-label">Translate the Transcript?:</div>
+            <div class="translate-toggle-label">Translate Captions?:</div>
             <div class="translate-toggle-box">
                 <div class="translate-radio">
                     <label for="translate-yes">Yes:</label>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="translate-radio">
                     <label for="translate-no">No:</label>
-                    <input id="translate-no" type="radio" name="translate-toggle" value="false" />
+                    <input id="translate-no" type="radio" name="translate-toggle" value="false" checked />
                 </div>
             </div>
         </div>
