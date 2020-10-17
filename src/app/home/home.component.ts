@@ -298,14 +298,11 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       // Get the error message
       var message = error.message;
-      console.log(error.details)
 
       // Return the message
       throw { message };
     }
-
-    console.log(list)
-
+    
     // Get the items from the list
     const items = list.items;
 
