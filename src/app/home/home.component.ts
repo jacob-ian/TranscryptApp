@@ -6,8 +6,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { AngularFireFunctions } from '@angular/fire/functions';
 
-import * as bcp47 from 'bcp47';
-import iso6391 from 'iso-639-1';
 import { parse as parseUrl } from 'query-string'
 
 /**
@@ -81,6 +79,7 @@ export class HomeComponent implements OnInit {
   ) {
     this.urlForm = this.formBuilder.group({
       captions: '',
+      language: ''
     });
     this.functions.useFunctionsEmulator('http://localhost:5000')
   }
@@ -159,6 +158,36 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * Fires when the translate toggle radio buttons are fired
+   * @param event 
+   */
+  translateToggle(event) {
+    // Get the box with the translation language selector
+    const tLangBox = document.getElementsByClassName('translate-select-box')[0];
+
+    // Check the value of the target
+    const value = event.target.value;
+
+    if(value) {
+      // Show the translation language selecto
+
+
+    } else {
+      // Hide the translation language selector and clear all of its selections
+
+
+    }
+  }
+
+  /**
+   * Fires when the translation language has been selected
+   * @param event the event. 
+   */
+  languageSelected(event){
+
+  }
+
+  /**
    * Validate that the inputted URL links to an actual YouTube video
    * @param url The inputted URL to be validated
    */
@@ -219,6 +248,16 @@ export class HomeComponent implements OnInit {
     // Access the YouTube Video search API to check if the video exists
     try {
       var captionsList = await this.listCaptions(videoId);
+      
+      // Stop the loading animation
+      this.stopLoadingAnimation();
+
+      // Set the url as valid
+      this.validUrl();
+
+      // Display the caption tracks to be chosen from
+      this.captions = captionsList;
+      this.displayCaptions();
     } catch (err) {
       // Stop the loading animation
       this.stopLoadingAnimation();
@@ -229,16 +268,6 @@ export class HomeComponent implements OnInit {
       // Display the mesage to the user
       return this.displayError(err.message);
     }
-
-    // Stop the loading animation
-    this.stopLoadingAnimation();
-
-    // Set the url as valid
-    this.validUrl();
-
-    // Display the caption tracks to be chosen from
-    this.captions = captionsList;
-    this.displayCaptions();
   }
 
   /**
