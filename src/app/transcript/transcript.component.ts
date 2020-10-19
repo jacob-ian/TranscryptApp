@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'app-transcript',
@@ -9,9 +9,12 @@ import { Renderer2 } from '@angular/core';
   styleUrls: ['./transcript.component.scss'],
 })
 export class TranscriptComponent implements OnInit {
-  // The videoId and language from the URL query
-  private videoId: string;
-  private lang: string;
+  // Create the form
+  transcriptDownload: FormGroup;
+
+  // The data and language from the URL query
+  private data: string;
+  private tlang: string;
 
   // The transcript holder div
   private transcriptContainer: HTMLElement;
@@ -22,19 +25,30 @@ export class TranscriptComponent implements OnInit {
   // The transcript input variable
   @Input() transcript: string;
 
+  // Create the form boolean
+  @Input() enableForm = false;
+
+  // Create the loading boolean
+  @Input() loading = true;
+
   constructor(
     private router: Router,
     private functions: AngularFireFunctions,
-    private renderer: Renderer2
-  ) {}
+    private formBuilder: FormBuilder
+  ) {
+    // Construct the form
+    this.transcriptDownload = this.formBuilder.group({
+      timestamps: [{value: false, disabled: !this.enableForm}],
+    })
+  }
 
   async ngOnInit(): Promise<void> {
     // Get the current route so we can get the caption ID
     const url = this.router.parseUrl(this.router.url);
 
-    // Get the caption ID
-    this.videoId = url.queryParams.videoId;
-    this.lang = url.queryParams.lang;
+    // Get the URL encoded data
+    this.data = url.queryParams.data;
+    this.tlang = url.queryParams.tlang;
 
     // Get the transcript container
     this.transcriptContainer = document.getElementById('transcript-content');
@@ -42,30 +56,31 @@ export class TranscriptComponent implements OnInit {
     // Send it to the caption track downloader service
     try {
       this.downloadedCaptions = await this.downloadTrack(
-        this.videoId,
-        this.lang
+        this.data,
+        this.tlang
       );
 
       // Show the transcript
       this.showTranscript(false);
     } catch (err) {
+      this.loading = false;
       this.transcript = err;
     }
   }
 
   /**
    * Download a caption track from the YouTube API
-   * @param videoId The captionId of the requested caption track.
-   * @param lang the selected language
+   * @param data The base64url encoded query string.
+   * @param tlang the translation language
    */
-  async downloadTrack(videoId: string, lang: string) {
+  async downloadTrack(data: string, tlang: string) {
     // Use the cloud function to download the caption track
     // Define the cloud function
     const getCaptionTrack = this.functions.httpsCallable('getCaptionTrack');
 
     // Get the caption track
     try {
-      var track = await getCaptionTrack({ videoId, lang }).toPromise();
+      var track = await getCaptionTrack({ data, tlang }).toPromise();
       return track;
     } catch (err) {
       throw err;
@@ -121,8 +136,15 @@ export class TranscriptComponent implements OnInit {
       });
     }
 
+    // Stop the loading animation
+    this.loading = false;
+
     // Set the transcript box to the track
     this.transcriptContainer.innerHTML = html;
+    
+    // Enable the form
+    this.enableForm = true;
+    this.transcriptDownload.controls['timestamps'].enable();
   }
 
   /**
@@ -133,12 +155,31 @@ export class TranscriptComponent implements OnInit {
     // Get the value of the target to determine whether it is checked or not
     const checked = event.target.checked;
 
-    if (checked) {
-      // We must get the track if it exists and enable timestamps
-      this.showTranscript(true);
-    } else {
-      // We can remove the timestamps
-      this.showTranscript(false);
-    }
+    // Trigger the timestamps on the transcript
+    this.showTranscript(checked);
   }
+
+  /**
+   * Submit the form to download the transcript as a file
+   * @param event The submit event
+   */
+  onSubmit(event) {
+    // Get the form control values
+    const timestamps = this.transcriptDownload.value.timestamps;
+
+    // Use the event to get the value of the button
+    const format = event.submitter.value;
+
+    // Call the transcript download function
+    this.downloadTranscript(format, timestamps)
+  }
+
+  /**
+   * Download the transcript as file.
+   * @param format The format to download the transcript in
+   */
+  downloadTranscript(format: 'pdf' | 'word' | 'txt' | 'srt', timestamps: boolean){
+  }
+
+
 }

@@ -12,6 +12,7 @@ import { parseStringPromise } from 'xml2js';
 import { decode } from 'urlencode';
 import { URLSearchParams } from 'url'
 import streamToPromise from 'stream-to-promise'
+import base64url from 'base64url'
 
 /**
  * Create a caption interface object
@@ -182,29 +183,29 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
  * Download the caption track given its ID.
  */
 exports.getCaptionTrack = functions.https.onCall(async (data) => {
-  // Get the videoId and the language
-  const videoId = data.videoId;
-  const lang = data.lang;
+  // Get the data and the language
+  const encodedQuery = data.data;
+  const tlang = data.tlang;
 
-  // Check that it is defined
-  if (!lang || !videoId) {
+  // Check the data exists
+  if (!encodedQuery) {
     // Return an error
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'The Video ID and Language are required.'
+      'An error occurred when loading the transcript.'
     );
   }
 
-  // Create the search parameters
-  var params = new URLSearchParams({
-    v: videoId,
-    lang,
-  });
+  // Decode the query string
+  const query = base64url.decode(encodedQuery);
+
+  // Create a string depending on if the translation is required
+  const tlangQuery = tlang ? `&tlang=${tlang}` : ''
 
   // Create a fetch request to the timed text endpoint
   try {
     var res = await fetch(
-      `https://www.youtube.com/api/timedtext?${params.toString()}`
+      `https://www.youtube.com/api/timedtext?${query}${tlangQuery}`
     );
   } catch {
     // Throw an internal error
@@ -235,11 +236,16 @@ exports.getCaptionTrack = functions.https.onCall(async (data) => {
     }
   }
 
-  // Get the buffer
-  var buffer = await res.bodyUsed;
+  // Get the readable stream and create a promise to get the XML data
+  var stream = await res.readable()
 
-  // Convert it to a string
-  var xml = buffer.toString();
+  // Convert the XML file stream to a promise that resolves a string
+  try {
+    var xml = await streamToPromise(stream);
+  } catch (err) {
+    // Return an internal error
+    throw new functions.https.HttpsError('internal', `An error occurred when downloading the transcript.`, err)
+  }
 
   // Parse the XML string
   try {

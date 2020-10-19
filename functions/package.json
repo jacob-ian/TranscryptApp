@@ -14,6 +14,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "base64url": "^3.0.1",
+    "fetch-h2": "^2.5.1",
     "firebase-admin": "^9.2.0",
     "firebase-functions": "^3.6.1",
     "stream-to-promise": "^3.0.0",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",
     "@types/stream-to-promise": "^2.2.1",
+    "@types/urlencode": "^1.1.2",
     "@types/xml2js": "^0.4.5",
     "firebase-functions-test": "^0.2.0",
     "ts-node": "^9.0.0",

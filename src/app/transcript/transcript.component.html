@@ -1,19 +1,28 @@
-<div class="transcript-container">
+<form class="transcript-container" [formGroup]="transcriptDownload" (ngSubmit)='onSubmit($event)'>
     <div class="transcript-options">
         <div class="transcript-config">
             <label for="transcript-timestamps">Show Timestamps:</label>
-            <input id="transcript-timestamps" type="checkbox" (change)="toggleTimestamp($event)" />
+            <input id="transcript-timestamps" type="checkbox" (change)="toggleTimestamp($event)"
+                formControlName='timestamps' />
         </div>
         <div class="transcript-buttons">
-            <div>Download as:</div>
+            <div class="download-label">Download as:</div>
             <ul>
-                <li><button>PDF</button></li>
-                <li><button>TXT</button></li>
-                <li><button>SRT</button></li>
+                <li><button type="submit" value="pdf" [disabled]='!enableForm'>PDF</button></li>
+                <li><button type="submit" value="word" [disabled]='!enableForm'>DOC</button>
+                </li>
+                <li><button type="submit" value="txt" [disabled]='!enableForm'>TXT</button></li>
+                <li><button type="submit" value="srt" [disabled]='!enableForm'>SRT</button></li>
             </ul>
         </div>
     </div>
     <div class="transcript-content" id="transcript-content">
+        <div class="transcript-loading" [hidden]='!loading'>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
         {{transcript}}
     </div>
-</div>
+</form>

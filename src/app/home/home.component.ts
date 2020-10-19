@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ViewChild, ElementRef, Renderer2, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -43,7 +43,7 @@ interface CaptionsList {
 })
 export class HomeComponent implements OnInit {
   // Create the variable for the URL Form
-  urlForm;
+  urlForm: FormGroup;
 
   // Get the two svgs for the validation indicator
   validSvg: HTMLElement;
@@ -66,8 +66,11 @@ export class HomeComponent implements OnInit {
   @Input()
   errorMessage: string;
 
-  // Create a variable for the captions options
-  @Input() captions: CaptionsList;
+  // Create and initialise variable for the captions options
+  @Input() captions: CaptionsList = {
+    captions: [],
+    translation_langs: []
+  };
 
   // Constructor method
   constructor(
@@ -81,7 +84,6 @@ export class HomeComponent implements OnInit {
       captions: '',
       language: ''
     });
-    this.functions.useFunctionsEmulator('http://localhost:5000')
   }
 
   ngOnInit(): void {
@@ -105,13 +107,32 @@ export class HomeComponent implements OnInit {
    * @param data The data from the submitted form
    */
   onSubmit(data) {
-    // Get the captions track language
-    const lang = this.urlForm.controls['captions'].value;
+    // Get the captions query string
+    const query = this.urlForm.controls['captions'].value;
 
-    // Route to a different page
-    this.router.navigate(['/transcript'], {
-      queryParams: { videoId: this.videoId, lang },
-    });
+    // Create a base64url encoded data string for the query
+    const dataQuery = btoa(query);
+
+    // Get the translation language
+    const tlang = this.urlForm.controls['language'].value;
+
+    // Check if tlang was defined
+    if(tlang) {
+      // Route to the transcript page with all of the variables
+      this.router.navigate([`/transcript`], {
+        queryParams: {
+          data: dataQuery,
+          tlang
+        }
+      })
+    } else {
+      // Route to the transcript page with all of the variables
+      this.router.navigate([`/transcript`], {
+        queryParams: {
+          data: dataQuery,
+        }
+      })
+    }
   }
 
   /**
@@ -147,13 +168,64 @@ export class HomeComponent implements OnInit {
     // Get the value of the caption
     var value = event.target.value;
 
-    // Check if there is a value or if it is empty
-    if (value.length) {
-      // We can enable the submit button
-      this.displaySubmit();
+    // Create a show boolean depending on there is a valid selection
+    const show = value.length ? true : false;
+
+    // Show the translate box and the submit button
+    this.showTranslateBox(show);
+    this.showSubmitButton(show)
+  }
+
+  /**
+   * Shows the translation box.
+   * @param show true for show, false for hide
+   */
+  showTranslateBox(show: boolean) {
+    // Get the box div
+    const translateBox = document.getElementsByClassName('url-translate-box')[0];
+
+    // Check if we are showing or hiding the box
+    const display = show ? 'flex' : 'none';
+
+    // Trigger the display flex property
+    this.renderer.setStyle(translateBox,'display',display);
+  }
+
+  /**
+   * Shows the language selection box
+   * @param show true for show, false for hide
+   */
+  showLanguageSelect(show: boolean) {
+    // Get the language selector's div
+    const languageBox = document.getElementsByClassName('translate-select-box')[0];
+
+    // Create an element to show an hide it
+    const display = show ? 'flex' : 'none';
+
+    // Trigger the display flex property
+    this.renderer.setStyle(languageBox, 'display', display)
+
+    // Reset the form control language
+    this.urlForm.controls['language'].setValue(null)
+
+    // Set the selected object to the first one (the placeholder)
+    const select = document.getElementsByClassName('translate-select')[0][0]
+    select.selected = true;
+
+  }
+
+  /**
+   * Show or hide the submit button
+   * @param show a boolean, true for show, false for hide
+   */
+  showSubmitButton(show: boolean) {
+    // Check if we are showing or hiding
+    if(show) {
+      // Remove the disabled attribute from the button to show it
+      this.submitButton.removeAttribute('disabled');
     } else {
-      // We should hide the submit button
-      this.hideSubmit();
+      // Add the disabled attribute to the button to hide it
+      this.submitButton.setAttribute('disabled', 'true');
     }
   }
 
@@ -162,30 +234,17 @@ export class HomeComponent implements OnInit {
    * @param event 
    */
   translateToggle(event) {
-    // Get the box with the translation language selector
-    const tLangBox = document.getElementsByClassName('translate-select-box')[0];
-
     // Check the value of the target
     const value = event.target.value;
 
-    if(value) {
-      // Show the translation language selecto
-
-
-    } else {
-      // Hide the translation language selector and clear all of its selections
-
-
-    }
-  }
-
-  /**
-   * Fires when the translation language has been selected
-   * @param event the event. 
-   */
-  languageSelected(event){
+    // Get the boolean value
+    const bool = value === 'true' ? true : false;
+    
+    // Toggle the translation language selector
+    this.showLanguageSelect(bool)
 
   }
+
 
   /**
    * Validate that the inputted URL links to an actual YouTube video
@@ -257,7 +316,7 @@ export class HomeComponent implements OnInit {
 
       // Display the caption tracks to be chosen from
       this.captions = captionsList;
-      this.displayCaptions();
+      this.showCaptionsSelect(true);
     } catch (err) {
       // Stop the loading animation
       this.stopLoadingAnimation();
@@ -306,14 +365,23 @@ export class HomeComponent implements OnInit {
     this.renderer.removeClass(this.urlInput, 'input-invalid');
     this.renderer.removeClass(this.urlInput, 'input-valid');
 
+    // Reset the captions object
+    this.captions = {
+      captions: [],
+      translation_langs: []
+    }
+
     // Hide the error
     this.hideError();
 
+    // Hide the translate box
+    this.showTranslateBox(false);
+
     // Hide the captions reel
-    this.hideCaptions();
+    this.showCaptionsSelect(false);
 
     // Hide the submit button
-    this.hideSubmit();
+    this.showSubmitButton(false);
   }
 
   startLoadingAnimation() {
@@ -354,35 +422,15 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Display a selectable list of captions to convert to transcripts to the user
+   * Display a selectable list of captions to convert to transcripts to the user.
+   * @param show true for show, false for hide
    */
-  displayCaptions() {
+  showCaptionsSelect(show: boolean) {
+    // Determine whether to show or hide with a display property
+    const display = show ? 'block' : 'none'
+
     // Add the show class to the select object
-    this.renderer.addClass(this.captionSelect, 'show-select');
-  }
-
-  /**
-   * Hide the captions selector since the valid URL has been removed.
-   */
-  hideCaptions() {
-    // Remove the show class from the select object
-    this.renderer.removeClass(this.captionSelect, 'show-select');
-  }
-
-  /**
-   * Display the submit button since the input data is now all valid.
-   */
-  displaySubmit() {
-    // Remove the disabled attribute from the button
-    this.submitButton.removeAttribute('disabled');
-  }
-
-  /**
-   * Hide the submit button since the URL was removed
-   */
-  hideSubmit() {
-    // Add the disabled attribute from the button
-    this.submitButton.setAttribute('disabled', 'true');
+    this.renderer.setStyle(this.captionSelect, 'display', display);
   }
 
   /**
