@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { AngularFireFunctions } from '@angular/fire/functions';
+import { FormBuilder, FormGroup } from '@angular/forms'
+import { AngularFireFunctions } from '@angular/fire/functions'
 
 @Component({
   selector: 'app-transcript',
@@ -21,6 +21,9 @@ export class TranscriptComponent implements OnInit {
 
   // The downloaded captions
   private downloadedCaptions: any;
+
+  // The transcript content
+  private transcriptContent: string;
 
   // The transcript input variable
   @Input() transcript: string;
@@ -92,47 +95,82 @@ export class TranscriptComponent implements OnInit {
    * @param timestamps boolean whether timestamps should be shown
    */
   showTranscript(timestamps: boolean) {
-    // Create an empty html var
-    var html = '';
+    // Initialize the transcript string
+    this.transcriptContent = '';
     if (timestamps) {
+      // Get the length of the array
+      const length = this.downloadedCaptions.text.length;
+
+      // Find the bigget value of time in the array to determine the timestamp format
+      const maxTime = this.downloadedCaptions.text[length-1]['$'].start;
+
+      // Check if there are any hours
+      const maxHours = Math.floor(maxTime / 3600);
+
+      // Create the time format depending on the time range
+      var timeFormat: 'hours' | 'minutes' = 'minutes';
+
+      // Check if we are in the hours range
+      if(maxHours !== 0){
+        timeFormat = "hours";
+      } 
+
       // Iterate over the transcript array items
-      this.downloadedCaptions.text.forEach((line: string) => {
+      this.downloadedCaptions.text.forEach((line: any) => {
         // Convert the time to something useful
         const time = line['$'].start;
 
-        if (time > 60) {
-          // Find what the minute is
-          const minute = `${Math.round(time / 60)}`;
+        // Depending on the time format required, create a timestamp
+        if(timeFormat === 'minutes'){
+          // Calculate the number of minutes
+          var hours = '';
+          var minutes = `${Math.floor(time/60)}:`;
+          var seconds = `${Math.floor(time % 60)}`;
 
-          // Get the seconds for the hour
-          var seconds = `${Math.round(time % 60)}`;
+          if(minutes.length === 2){
+            minutes = `0${minutes}`;
+          }
 
-          if (seconds.length === 1) {
+          if(seconds.length === 1) {
             seconds = `0${seconds}`;
           }
 
-          // Create a timestamp
-          var stamp = `${minute}:${seconds}`;
         } else {
-          // Find the number of seconds
-          var seconds = `${Math.round(time)}`;
+          // Create a value to hold all the seconds
+          var allTime = time;
 
-          // Check if we need to add a leading 0
-          if (seconds.length === 1) {
-            seconds = `0${seconds}`;
+          // Calculate the digits
+          var hours = `${Math.floor(allTime/3600)}:`;
+          allTime %= 3600;
+          var minutes = `${Math.floor(allTime / 60)}:`;
+          var seconds = `${Math.floor(allTime % 60)}`;
+
+          // Create the strings
+          if(hours.length === 2) {
+            hours = `0${hours}`;
           }
 
-          var stamp = `0:${seconds}`;
+          if(minutes.length === 2){
+            minutes = `0${minutes}`
+          }
+
+          if(seconds.length === 1){
+            seconds = `0${seconds}`
+          }
+
         }
 
+        // Create the timestamp
+        var stamp = `${hours}${minutes}${seconds}`
+
         // Get the line
-        html = `${html}<p><b>${stamp}: </b>${line['_']}</p>`;
+        this.transcriptContent = `${this.transcriptContent}<p><b>${stamp}: </b>${line['_']}</p>`;
       });
     } else {
       // Iterate over the transcript array items
       this.downloadedCaptions.text.forEach((line: string) => {
         // Get the line
-        html = `${html}<p>${line['_']}</p>`;
+        this.transcriptContent = `${this.transcriptContent}<p>${line['_']}</p>`;
       });
     }
 
@@ -140,7 +178,7 @@ export class TranscriptComponent implements OnInit {
     this.loading = false;
 
     // Set the transcript box to the track
-    this.transcriptContainer.innerHTML = html;
+    this.transcriptContainer.innerHTML = this.transcriptContent;
     
     // Enable the form
     this.enableForm = true;
@@ -179,6 +217,8 @@ export class TranscriptComponent implements OnInit {
    * @param format The format to download the transcript in
    */
   downloadTranscript(format: 'pdf' | 'word' | 'txt' | 'srt', timestamps: boolean){
+
+
   }
 
 

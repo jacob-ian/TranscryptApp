@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ViewChild, ElementRef, Renderer2, Input } from '@angular/core';
+import { Renderer2, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { HttpClient, HttpParams } from '@angular/common/http';
-
 import { AngularFireFunctions } from '@angular/fire/functions';
 
 import { parse as parseUrl } from 'query-string'
@@ -76,7 +74,6 @@ export class HomeComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private renderer: Renderer2,
-    private http: HttpClient,
     private router: Router,
     private functions: AngularFireFunctions
   ) {
