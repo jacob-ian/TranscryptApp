@@ -30,6 +30,7 @@ interface TLangs {
  * Create a response object for the CaptionsList
  */
 interface CaptionsList {
+  videoTitle: string;
   captions: Caption[];
   translation_langs: TLangs[];
 }
@@ -66,6 +67,7 @@ export class HomeComponent implements OnInit {
 
   // Create and initialise variable for the captions options
   @Input() captions: CaptionsList = {
+    videoTitle: '',
     captions: [],
     translation_langs: []
   };
@@ -107,6 +109,9 @@ export class HomeComponent implements OnInit {
     // Get the captions query string
     const query = this.urlForm.controls['captions'].value;
 
+    // Get the title of the video
+    const title = this.captions.videoTitle;
+
     // Create a base64url encoded data string for the query
     const dataQuery = btoa(query);
 
@@ -119,7 +124,8 @@ export class HomeComponent implements OnInit {
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
-          tlang
+          tlang,
+          title
         }
       })
     } else {
@@ -127,6 +133,7 @@ export class HomeComponent implements OnInit {
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
+          title
         }
       })
     }
@@ -364,6 +371,7 @@ export class HomeComponent implements OnInit {
 
     // Reset the captions object
     this.captions = {
+      videoTitle: '',
       captions: [],
       translation_langs: []
     }

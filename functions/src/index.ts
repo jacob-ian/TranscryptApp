@@ -10,9 +10,9 @@ import * as functions from 'firebase-functions';
 import { context } from 'fetch-h2';
 import { parseStringPromise } from 'xml2js';
 import { decode } from 'urlencode';
-import { URLSearchParams } from 'url'
-import streamToPromise from 'stream-to-promise'
-import base64url from 'base64url'
+import { URLSearchParams } from 'url';
+import streamToPromise from 'stream-to-promise';
+import base64url from 'base64url';
 
 /**
  * Create a caption interface object
@@ -31,13 +31,13 @@ interface Caption {
 interface TLangs {
   lang: string; // the language code
   name: string; // the Simple English language name
-
 }
 
 /**
  * Create a response object for the CaptionsList
  */
 interface CaptionsList {
+  videoTitle: string;
   captions: Caption[];
   translation_langs: TLangs[];
 }
@@ -63,22 +63,34 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
 
   // Call the Get Video Info endpoint from YouTube to get the caption tracks
   try {
-    var res = await fetch(`https://www.youtube.com/get_video_info?video_id=${videoId}`);
+    var res = await fetch(
+      `https://www.youtube.com/get_video_info?video_id=${videoId}`
+    );
   } catch (err) {
     // Return an internal error to the client
-    throw new functions.https.HttpsError('internal', `Couldn't get the YouTube video info.`, err);
+    throw new functions.https.HttpsError(
+      'internal',
+      `Couldn't get the YouTube video info.`,
+      err
+    );
   }
 
   // Check the status of the response
-  if(!res.ok) {
+  if (!res.ok) {
     // Throw an error depending on the status
     switch (res.status) {
-      case 400: 
-        throw new functions.https.HttpsError('invalid-argument', `A bad request was made to the YouTube API.`);
-      case 403: 
-        throw new functions.https.HttpsError('permission-denied', `Access to the YouTube API was denied.`)
+      case 400:
+        throw new functions.https.HttpsError(
+          'invalid-argument',
+          `A bad request was made to the YouTube API.`
+        );
+      case 403:
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          `Access to the YouTube API was denied.`
+        );
       default:
-        throw new functions.https.HttpsError('unknown','An error occurred.')
+        throw new functions.https.HttpsError('unknown', 'An error occurred.');
     }
   }
 
@@ -90,7 +102,10 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
     var buffer = await streamToPromise(stream);
   } catch {
     // Throw an error
-    throw new functions.https.HttpsError('internal', 'An error occurred getting the YouTube video info.')
+    throw new functions.https.HttpsError(
+      'internal',
+      'An error occurred getting the YouTube video info.'
+    );
   }
 
   // Convert the buffer to a string to get the url encoded data
@@ -106,9 +121,12 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   const playerResponse = query.get('player_response');
 
   // Check if there is a playerResponse object
-  if(!playerResponse) {
+  if (!playerResponse) {
     // Throw an error that the YouTube video doesn't exist
-    throw new functions.https.HttpsError('not-found', `The YouTube video doesn't exist.`)
+    throw new functions.https.HttpsError(
+      'not-found',
+      `The YouTube video doesn't exist.`
+    );
   }
 
   // Parse the player response object as JSON
@@ -118,20 +136,26 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   const captionsObj = jsonResponse.captions;
 
   // Check if the captions object exists
-  if(!captionsObj) {
+  if (!captionsObj) {
     // The video doesn't exist
-    throw new functions.https.HttpsError('not-found', `The YouTube video doesn't exist.`)
+    throw new functions.https.HttpsError(
+      'not-found',
+      `The YouTube video doesn't exist.`
+    );
   }
 
+  // Get the video title
+  const videoTitle = jsonResponse.videoDetails.title;
+
   // Get the captions Tracks object
-  const captionsTracks = captionsObj.playerCaptionsTracklistRenderer.captionTracks;
+  const captionsTracks =
+    captionsObj.playerCaptionsTracklistRenderer.captionTracks;
 
   // Create an object to hold the list of captions
   var captions: Caption[] = [];
 
   // Check if there are any caption tracks
-  if(captionsTracks.length !==0) {
-
+  if (captionsTracks.length !== 0) {
     captionsTracks.forEach((track: any) => {
       // Create a caption option
       const caption: Caption = {
@@ -139,11 +163,11 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
         baseUrl: track.baseUrl,
         query: track.baseUrl.split('?')[1],
         name: track.name.simpleText,
-        kind: track.kind === 'asr' ? 'asr' : 'standard' 
-      }
+        kind: track.kind === 'asr' ? 'asr' : 'standard',
+      };
 
       // Add the caption track to the list
-      captions.push(caption)
+      captions.push(caption);
     });
   }
 
@@ -151,32 +175,33 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   var tLangs: TLangs[] = [];
 
   // Get the translation languages object
-  const translationLangs = captionsObj.playerCaptionsTracklistRenderer.translationLanguages;
+  const translationLangs =
+    captionsObj.playerCaptionsTracklistRenderer.translationLanguages;
 
   // Check if there are any translation languages
-  if(translationLangs.length !== 0){
+  if (translationLangs.length !== 0) {
     // Sort through all of the captions and create an object
-    translationLangs.forEach((language:any) =>{
+    translationLangs.forEach((language: any) => {
       // Create a tlang object
       const tlang: TLangs = {
         lang: language.languageCode,
-        name: language.languageName.simpleText
-      }
+        name: language.languageName.simpleText,
+      };
 
       // Add it to the output array
-      tLangs.push(tlang)
-    })
+      tLangs.push(tlang);
+    });
   }
 
   // Edit the output array
   var captionsList: CaptionsList = {
+    videoTitle,
     captions,
-    translation_langs: tLangs
-  }
+    translation_langs: tLangs,
+  };
 
   // Return the output
-  return captionsList
-  
+  return captionsList;
 });
 
 /**
@@ -200,7 +225,7 @@ exports.getCaptionTrack = functions.https.onCall(async (data) => {
   const query = base64url.decode(encodedQuery);
 
   // Create a string depending on if the translation is required
-  const tlangQuery = tlang ? `&tlang=${tlang}` : ''
+  const tlangQuery = tlang ? `&tlang=${tlang}` : '';
 
   // Create a fetch request to the timed text endpoint
   try {
@@ -237,14 +262,18 @@ exports.getCaptionTrack = functions.https.onCall(async (data) => {
   }
 
   // Get the readable stream and create a promise to get the XML data
-  var stream = await res.readable()
+  var stream = await res.readable();
 
   // Convert the XML file stream to a promise that resolves a string
   try {
     var xml = await streamToPromise(stream);
   } catch (err) {
     // Return an internal error
-    throw new functions.https.HttpsError('internal', `An error occurred when downloading the transcript.`, err)
+    throw new functions.https.HttpsError(
+      'internal',
+      `An error occurred when downloading the transcript.`,
+      err
+    );
   }
 
   // Parse the XML string
@@ -260,10 +289,15 @@ exports.getCaptionTrack = functions.https.onCall(async (data) => {
   }
 
   // Get the transcript from the XML
-  if(parsed){
-    var transcript = parsed.transcript;
+  var transcript;
+  if (parsed) {
+    transcript = parsed.transcript;
   } else {
-    var transcript = undefined;
+    // Throw an error
+    throw new functions.https.HttpsError(
+      'unknown',
+      'An error occurred while downloading the requested transcript.'
+    );
   }
 
   return transcript;
