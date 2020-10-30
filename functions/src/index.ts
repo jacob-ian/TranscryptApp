@@ -140,7 +140,7 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
     // The video doesn't exist
     throw new functions.https.HttpsError(
       'not-found',
-      `The YouTube video doesn't exist.`
+      `Unfortunately, this video has no captions to generate a transcript from.`
     );
   }
 

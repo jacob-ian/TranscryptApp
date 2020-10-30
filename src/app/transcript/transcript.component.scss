@@ -1,124 +1,137 @@
 .transcript-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .transcript-options {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 80%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 80%;
 }
 
 .transcript-config {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-self: flex-start;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-self: flex-start;
 }
-    .transcript-config label {
-        margin-right: 10px;
-    }
-    .transcript-config input[type=checkbox] {
-        font-size: 1.1em;
-        transform: scale(1.4);
-        -webkit-transform: scale(1.4);
-        -moz-transform: scale(1.4);
-    }
-        .transcript-config input[type=checkbox]:checked {
-            color: var(--color-primary)
-        }
+.transcript-config label {
+  margin-right: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.transcript-config label i {
+  margin-right: 5px;
+}
+.transcript-config input[type="checkbox"] {
+  font-size: 1.1em;
+  transform: scale(1.4);
+  -webkit-transform: scale(1.4);
+  -moz-transform: scale(1.4);
+}
+.transcript-config input[type="checkbox"]:checked {
+  color: var(--color-primary);
+}
 
 .transcript-buttons {
-    flex: none;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .transcript-buttons ul {
-    list-style: none;
-    display: flex;
-    flex-direction: row;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
 }
 
 .transcript-buttons button {
-    width: auto;
-    border-radius:25px;
-    border: none;
-    outline:none;
-    background-color: var(--font-accent);
-    color: white;
-    padding-top:5px;
-    padding-bottom: 5px;
-    padding-left:15px;
-    padding-right: 15px;
-    margin-right: 5px;
-    font-weight: 500;
-    transition: all ease 0.4s;
-    -moz-transition: all ease 0.4s;
-    -webkit-transition: all ease 0.4s;
-    font-family: var(--font-family);
-    font-size: 1em;
+  width: auto;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background-color: var(--font-accent);
+  color: white;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-right: 5px;
+  font-weight: 500;
+  transition: all ease 0.4s;
+  -moz-transition: all ease 0.4s;
+  -webkit-transition: all ease 0.4s;
+  font-family: var(--font-family);
+  font-size: 1em;
 }
-    .transcript-buttons button:hover {
-        cursor: pointer;
-        background-color: #9a1313
-    }
+.transcript-buttons button:hover {
+  cursor: pointer;
+  background-color: #9a1313;
+}
 
-    .transcript-buttons button:disabled {
-        background-color: rgba(0,0,0,0.2)
-    }
+.transcript-buttons button:disabled {
+  background-color: rgba(0, 0, 0, 0.2);
+}
 
 .transcript-content {
-    border-radius: 25px;
-    border: var(--font-main) solid 1px;
-    padding: 10px;
-    width: 80%;
-    font-family: "Roboto", sans-serif;
-    font-weight: 500;
-    min-height: 150px;
-    position: relative;
+  border-radius: 25px;
+  border: var(--font-main) solid 1px;
+  padding: 10px;
+  width: 80%;
+  font-weight: 500;
+  min-height: 150px;
+  position: relative;
 }
 
 .transcript-loading {
-    display: inline-block;
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    left: calc(50% - 20px);
-    top: calc(150px/2 - 30px/2)
+  display: inline-block;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: calc(50% - 20px);
+  top: calc(150px / 2 - 30px / 2);
+}
+.transcript-loading div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin-top: 1px;
+  border: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: transcript-loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: var(--color-primary) transparent transparent transparent;
+}
+.transcript-loading div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.transcript-loading div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.transcript-loading div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes transcript-loading {
+  0% {
+    transform: rotate(0deg);
   }
-  .transcript-loading div {
-    box-sizing: border-box;
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    margin-top:1px;
-    border: 3px solid var(--color-primary);
-    border-radius: 50%;
-    animation: transcript-loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: var(--color-primary) transparent transparent transparent;
+  100% {
+    transform: rotate(360deg);
   }
-  .transcript-loading div:nth-child(1) {
-    animation-delay: -0.45s;
-  }
-  .transcript-loading div:nth-child(2) {
-    animation-delay: -0.3s;
-  }
-  .transcript-loading div:nth-child(3) {
-    animation-delay: -0.15s;
-  }
-  @keyframes transcript-loading {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  
+}
+
+.transcript-buttons .download-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.transcript-buttons .download-label i {
+  margin-right: 5px;
+}

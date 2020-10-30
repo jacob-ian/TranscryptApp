@@ -1,21 +1,21 @@
 .header {
-    text-align: center;
-    margin: 50px 0 100px;
-    flex: 1;
-    height: var(--header-height)
+  text-align: center;
+  margin: 50px 0;
+  flex: 1;
 }
 
 .title a {
-    font-size: 3em;
-    font-weight: 600;
-    color: black;
-    text-decoration: none;
+  font-size: 3em;
+  font-weight: 600;
+  color: black;
+  text-decoration: none;
+  font-family: Poppins;
 }
 
 .description {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .red {
-    color: var(--font-accent)
+  color: var(--font-accent);
 }

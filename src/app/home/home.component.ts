@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Renderer2, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
-import { parse as parseUrl } from 'query-string'
+import { parse as parseUrl } from 'query-string';
 
 /**
  * Create a caption interface object
@@ -23,7 +23,6 @@ interface Caption {
 interface TLangs {
   lang: string; // the language code
   name: string; // the Simple English language name
-
 }
 
 /**
@@ -39,6 +38,7 @@ interface CaptionsList {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class HomeComponent implements OnInit {
   // Create the variable for the URL Form
@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
   @Input() captions: CaptionsList = {
     videoTitle: '',
     captions: [],
-    translation_langs: []
+    translation_langs: [],
   };
 
   // Constructor method
@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit {
   ) {
     this.urlForm = this.formBuilder.group({
       captions: '',
-      language: ''
+      language: '',
     });
   }
 
@@ -119,23 +119,23 @@ export class HomeComponent implements OnInit {
     const tlang = this.urlForm.controls['language'].value;
 
     // Check if tlang was defined
-    if(tlang) {
+    if (tlang) {
       // Route to the transcript page with all of the variables
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
           tlang,
-          title
-        }
-      })
+          title,
+        },
+      });
     } else {
       // Route to the transcript page with all of the variables
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
-          title
-        }
-      })
+          title,
+        },
+      });
     }
   }
 
@@ -177,7 +177,7 @@ export class HomeComponent implements OnInit {
 
     // Show the translate box and the submit button
     this.showTranslateBox(show);
-    this.showSubmitButton(show)
+    this.showSubmitButton(show);
   }
 
   /**
@@ -186,13 +186,15 @@ export class HomeComponent implements OnInit {
    */
   showTranslateBox(show: boolean) {
     // Get the box div
-    const translateBox = document.getElementsByClassName('url-translate-box')[0];
+    const translateBox = document.getElementsByClassName(
+      'url-translate-box'
+    )[0];
 
     // Check if we are showing or hiding the box
     const display = show ? 'flex' : 'none';
 
     // Trigger the display flex property
-    this.renderer.setStyle(translateBox,'display',display);
+    this.renderer.setStyle(translateBox, 'display', display);
   }
 
   /**
@@ -201,21 +203,22 @@ export class HomeComponent implements OnInit {
    */
   showLanguageSelect(show: boolean) {
     // Get the language selector's div
-    const languageBox = document.getElementsByClassName('translate-select-box')[0];
+    const languageBox = document.getElementsByClassName(
+      'translate-select-box'
+    )[0];
 
     // Create an element to show an hide it
     const display = show ? 'flex' : 'none';
 
     // Trigger the display flex property
-    this.renderer.setStyle(languageBox, 'display', display)
+    this.renderer.setStyle(languageBox, 'display', display);
 
     // Reset the form control language
-    this.urlForm.controls['language'].setValue(null)
+    this.urlForm.controls['language'].setValue(null);
 
     // Set the selected object to the first one (the placeholder)
-    const select = document.getElementsByClassName('translate-select')[0][0]
+    const select = document.getElementsByClassName('translate-select')[0][0];
     select.selected = true;
-
   }
 
   /**
@@ -224,7 +227,7 @@ export class HomeComponent implements OnInit {
    */
   showSubmitButton(show: boolean) {
     // Check if we are showing or hiding
-    if(show) {
+    if (show) {
       // Remove the disabled attribute from the button to show it
       this.submitButton.removeAttribute('disabled');
     } else {
@@ -235,7 +238,7 @@ export class HomeComponent implements OnInit {
 
   /**
    * Fires when the translate toggle radio buttons are fired
-   * @param event 
+   * @param event
    */
   translateToggle(event) {
     // Check the value of the target
@@ -243,12 +246,10 @@ export class HomeComponent implements OnInit {
 
     // Get the boolean value
     const bool = value === 'true' ? true : false;
-    
+
     // Toggle the translation language selector
-    this.showLanguageSelect(bool)
-
+    this.showLanguageSelect(bool);
   }
-
 
   /**
    * Validate that the inputted URL links to an actual YouTube video
@@ -256,7 +257,7 @@ export class HomeComponent implements OnInit {
    */
   async validateUrl(url: string) {
     // Create an array of valid YouTube urls and protocols
-    const protocols = ['http','https'];
+    const protocols = ['http', 'https'];
     const validUrls = ['www.youtube.com/watch', 'youtu.be/'];
 
     // Split the URL and get its protocol
@@ -269,7 +270,7 @@ export class HomeComponent implements OnInit {
 
     // Get the URL protocol
     const protocol = urlSplit[0];
-    if(!protocols.includes(protocol)){
+    if (!protocols.includes(protocol)) {
       // The URL is invalid
       return this.invalidUrl();
     }
@@ -281,13 +282,12 @@ export class HomeComponent implements OnInit {
     var videoId: any = '';
 
     // Check which URL is used
-    if(remains.includes(validUrls[0])){
+    if (remains.includes(validUrls[0])) {
       const query = remains.split('?')[1];
 
       // This is the standard URL. Decode the URL and get the 'v' parameter for the videoId
       const decodedUrl = parseUrl(query);
       videoId = decodedUrl.v;
-
     } else if (remains.includes(validUrls[1])) {
       // This is the mobile/shortened URL, the videoId is what is after the last slash
       videoId = remains.split('/')[1];
@@ -297,7 +297,7 @@ export class HomeComponent implements OnInit {
     }
 
     // Check the length of the VideoId to make sure it is valid
-    if(videoId.length !== 11){
+    if (videoId.length !== 11) {
       // The videoId is invalid
       return this.invalidUrl();
     }
@@ -311,7 +311,7 @@ export class HomeComponent implements OnInit {
     // Access the YouTube Video search API to check if the video exists
     try {
       var captionsList = await this.listCaptions(videoId);
-      
+
       // Stop the loading animation
       this.stopLoadingAnimation();
 
@@ -373,8 +373,8 @@ export class HomeComponent implements OnInit {
     this.captions = {
       videoTitle: '',
       captions: [],
-      translation_langs: []
-    }
+      translation_langs: [],
+    };
 
     // Hide the error
     this.hideError();
@@ -413,7 +413,9 @@ export class HomeComponent implements OnInit {
 
     // Get the list of captions and translations
     try {
-      var list: CaptionsList = await getCaptionsList({ videoId: id }).toPromise();
+      var list: CaptionsList = await getCaptionsList({
+        videoId: id,
+      }).toPromise();
     } catch (error) {
       // Get the error message
       var message = error.message;
@@ -432,7 +434,7 @@ export class HomeComponent implements OnInit {
    */
   showCaptionsSelect(show: boolean) {
     // Determine whether to show or hide with a display property
-    const display = show ? 'block' : 'none'
+    const display = show ? 'block' : 'none';
 
     // Add the show class to the select object
     this.renderer.setStyle(this.captionSelect, 'display', display);

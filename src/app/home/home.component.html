@@ -1,59 +1,57 @@
-<div class="form-container">
-    <form [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
-        <div class="url-input-container">
-            <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
-                (input)="urlChanged($event)" required />
-            <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-valid" alt="URL is Valid">
-                <use xlink:href="assets/svg/done.svg#img"></use>
-            </svg>
-            <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-invalid" alt="URL is Invalid">
-                <use xlink:href="assets/svg/error.svg#img"></use>
-            </svg>
-            <div id="url-loading-ring" class="lds-ring hidden">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+<form fxFlexFill class="form-container" [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
+    <div class="url-input-container">
+        <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
+            (input)="urlChanged($event)" required />
+        <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-valid" alt="URL is Valid">
+            <use xlink:href="assets/svg/done.svg#img"></use>
+        </svg>
+        <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-invalid" alt="URL is Invalid">
+            <use xlink:href="assets/svg/error.svg#img"></use>
+        </svg>
+        <div id="url-loading-ring" class="lds-ring hidden">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="url-error">
+        <svg viewBox="0 0 24 24" class="url-error-svg" id="url-invalid" alt="URL is Invalid">
+            <use xlink:href="assets/svg/error.svg#img"></use>
+        </svg>
+        <span class="url-error-message">{{errorMessage}}</span>
+    </div>
+    <div id='url-caption-box' class="url-caption-box">
+        <label for="url-caption-select">Select a Captions Track:</label>
+        <select class="transcrypt-select caption-select" id="url-caption-select" name="captions"
+            (input)="captionSelected($event)" formControlName="captions" required>
+            <option default hidden>Select...</option>
+            <option *ngFor="let c of captions.captions" [attr.value]='c.query'>{{c.name}}</option>
+        </select>
+    </div>
+    <div class="url-translate-box">
+        <div class="translate-toggle-box">
+            <div class="translate-toggle-label">Translate Captions?:</div>
+            <div class="translate-radio">
+                <label for="translate-yes">Yes:</label>
+                <input id="translate-yes" type="radio" name="translate-toggle" value='true'
+                    (change)="translateToggle($event)" />
+            </div>
+            <div class="translate-radio">
+                <label for="translate-no">No:</label>
+                <input id="translate-no" type="radio" name="translate-toggle" value='false'
+                    (change)="translateToggle($event)" checked />
             </div>
         </div>
-
-        <div class="url-error">
-            <svg viewBox="0 0 24 24" class="url-error-svg" id="url-invalid" alt="URL is Invalid">
-                <use xlink:href="assets/svg/error.svg#img"></use>
-            </svg>
-            <span class="url-error-message">{{errorMessage}}</span>
-        </div>
-        <div id='url-caption-box' class="url-caption-box">
-            <label for="url-caption-select">Select a Captions Track:</label>
-            <select class="transcrypt-select caption-select" id="url-caption-select" name="captions"
-                (input)="captionSelected($event)" formControlName="captions" required>
+        <div class="translate-select-box">
+            <label for="translate-select">Select a Language:</label>
+            <select id="translate-select" class="transcrypt-select translate-select" name="tlang"
+                formControlName="language">
                 <option default hidden>Select...</option>
-                <option *ngFor="let c of captions.captions" [attr.value]='c.query'>{{c.name}}</option>
+                <option *ngFor="let l of captions.translation_langs" [attr.value]="l.lang">{{l.name}}</option>
             </select>
         </div>
-        <div class="url-translate-box">
-            <div class="translate-toggle-box">
-                <div class="translate-toggle-label">Translate Captions?:</div>
-                <div class="translate-radio">
-                    <label for="translate-yes">Yes:</label>
-                    <input id="translate-yes" type="radio" name="translate-toggle" value='true'
-                        (change)="translateToggle($event)" />
-                </div>
-                <div class="translate-radio">
-                    <label for="translate-no">No:</label>
-                    <input id="translate-no" type="radio" name="translate-toggle" value='false'
-                        (change)="translateToggle($event)" checked />
-                </div>
-            </div>
-            <div class="translate-select-box">
-                <label for="translate-select">Select a Language:</label>
-                <select id="translate-select" class="transcrypt-select translate-select" name="tlang"
-                    formControlName="language">
-                    <option default hidden>Select...</option>
-                    <option *ngFor="let l of captions.translation_langs" [attr.value]="l.lang">{{l.name}}</option>
-                </select>
-            </div>
-        </div>
-        <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
-    </form>
-</div>
+    </div>
+    <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
+</form>
