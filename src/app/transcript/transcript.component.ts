@@ -1,4 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewEncapsulation,
+  Renderer2,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -49,6 +55,7 @@ import { saveAs } from 'file-saver';
   selector: 'app-transcript',
   templateUrl: './transcript.component.html',
   styleUrls: ['./transcript.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class TranscriptComponent implements OnInit {
   // Create the form
@@ -71,9 +78,6 @@ export class TranscriptComponent implements OnInit {
   // The transcript content
   private transcriptContent: string;
 
-  // The transcript input variable
-  @Input() transcript: string;
-
   // Create the form boolean
   @Input() enableForm = false;
 
@@ -83,7 +87,8 @@ export class TranscriptComponent implements OnInit {
   constructor(
     private router: Router,
     private functions: AngularFireFunctions,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private renderer: Renderer2
   ) {
     // Construct the form
     this.transcriptDownload = this.formBuilder.group({
@@ -116,11 +121,11 @@ export class TranscriptComponent implements OnInit {
     // Send it to the caption track downloader service
     try {
       this.downloadedCaptions = await this.downloadTrack(this.data, this.tlang);
-      // Show the transcript
+      // Show the transcript without timestamps
       this.showTranscript(false);
     } catch (err) {
       this.loading = false;
-      this.transcript = err;
+      this.showError(err);
     }
   }
 
@@ -141,6 +146,36 @@ export class TranscriptComponent implements OnInit {
     } catch (err) {
       throw err;
     }
+  }
+
+  /**
+   * Show an error message inside the transcript box
+   * @param error the error message
+   */
+  showError(error: any): void {
+    // Define the error code
+    const code = error.code;
+
+    if (code === 'internal') {
+    }
+
+    // Create an error element
+    const errorElement = document.createElement('div');
+
+    // Give it a class
+    errorElement.classList.add('transcript-error');
+
+    // Create a message element
+    const errorMessage = document.createElement('div');
+    errorMessage.innerText = error.message;
+
+    // Add it to the other element
+    errorElement.appendChild(errorMessage);
+
+    // Add a reload button to the box depending on the error, otherwise a back button
+
+    // Set the inner html of the container to the error
+    this.transcriptContainer.innerHTML = error;
   }
 
   /**

@@ -1,11 +1,15 @@
-<form class="transcript-container" [formGroup]="transcriptDownload" (ngSubmit)='onSubmit($event)'>
+<form class="transcript-container" [formGroup]="transcriptDownload" (ngSubmit)='onSubmit($event)' fxFlexFill>
     <div class="transcript-options">
-        <div class="transcript-config">
+        <div class="transcript-option back-button">
+            <a routerLink="/" routerLinkActive="true"><i class="material-icons md-48">arrow_back</i>Go
+                Back</a>
+        </div>
+        <div class="transcript-option transcript-timestamp">
             <label for="transcript-timestamps"><i class="material-icons md-36">schedule</i>Show Timestamps:</label>
             <input id="transcript-timestamps" type="checkbox" (change)="toggleTimestamp($event)"
                 formControlName='timestamps' />
         </div>
-        <div class="transcript-buttons">
+        <div class="transcript-option transcript-buttons">
             <div class="download-label"><i class="material-icons md-36">save_alt</i>Save as:</div>
             <ul>
                 <li><button type="submit" value="pdf" [disabled]='!enableForm'>PDF</button></li>
@@ -22,6 +26,5 @@
             <div></div>
             <div></div>
         </div>
-        {{transcript}}
     </div>
 </form>

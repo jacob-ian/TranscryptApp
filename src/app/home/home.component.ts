@@ -452,7 +452,7 @@ export class HomeComponent implements OnInit {
     const messageBox = document.getElementsByClassName('url-error')[0];
 
     // Make it visible
-    this.renderer.addClass(messageBox, 'url-error-show');
+    this.renderer.setStyle(messageBox, 'opacity', '1');
   }
 
   /**
@@ -463,6 +463,6 @@ export class HomeComponent implements OnInit {
     const messageBox = document.getElementsByClassName('url-error')[0];
 
     // Make it visible
-    this.renderer.removeClass(messageBox, 'url-error-show');
+    this.renderer.setStyle(messageBox, 'opacity', '0');
   }
 }

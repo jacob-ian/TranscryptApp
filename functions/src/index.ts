@@ -132,12 +132,24 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   // Parse the player response object as JSON
   const jsonResponse = JSON.parse(playerResponse);
 
+  // Get the video details object
+  const videoDetails = jsonResponse.videoDetails;
+
+  // Check if the video exists
+  if (!videoDetails) {
+    // The video doesn't exist
+    throw new functions.https.HttpsError(
+      'not-found',
+      "The requested YouTube video doesn't exist."
+    );
+  }
+
   // Get the captions object
   const captionsObj = jsonResponse.captions;
 
   // Check if the captions object exists
   if (!captionsObj) {
-    // The video doesn't exist
+    // The captions don't exist
     throw new functions.https.HttpsError(
       'not-found',
       `Unfortunately, this video has no captions to generate a transcript from.`
@@ -145,7 +157,7 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
   }
 
   // Get the video title
-  const videoTitle = jsonResponse.videoDetails.title;
+  const videoTitle = videoDetails.title;
 
   // Get the captions Tracks object
   const captionsTracks =

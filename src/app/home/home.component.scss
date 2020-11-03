@@ -5,21 +5,31 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: all ease 0.4s;
-  -webkit-transition: all ease 0.4s;
-  -moz-transition: all ease 0.4s;
+  transition: all ease 0.3s;
   height: 100%;
+}
+
+@keyframes appear {
+  from {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .url-input-container {
   width: 100%;
   text-align: center;
+  position: relative;
 }
 
 .text-box {
   height: 3em;
   padding-left: 10px;
-  padding-right: 30px;
+  padding-right: 10px;
   width: 80%;
   background: none;
   border-radius: 25px;
@@ -68,11 +78,10 @@
   margin-top: 25px;
   font-weight: 500;
   transition: all ease 0.4s;
-  -moz-transition: all ease 0.4s;
-  -webkit-transition: all ease 0.4s;
-  order: 5;
   font-family: var(--font-family);
   font-size: 1em;
+  animation: appear 0.4s ease;
+  order: 50;
 }
 .submit-button:hover {
   cursor: pointer;
@@ -89,20 +98,20 @@
   cursor: default;
 }
 
-.url-validation-svg {
-  height: 30px;
+.url-validation-icon {
   position: absolute;
-  fill: var(--color-secondary);
+  color: var(--color-secondary);
   transition: all ease 0.2s;
   -webkit-transition: all ease 0.2s;
   -moz-transition: all ease 0.2s;
   right: 10%;
-  margin-top: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   opacity: 0;
 }
 
 .show {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .hidden {
@@ -154,34 +163,24 @@
 }
 
 .url-error {
+  display: flex;
   color: var(--color-primary);
   align-items: center;
   flex-direction: row;
-  display: none;
   order: 3;
   margin-top: 15px;
-}
-
-.url-error-svg {
-  fill: var(--color-primary);
-  height: 20px;
-  order: 1;
-  margin-right: 5px;
-}
-
-.url-error-message {
-  order: 2;
   font-size: 0.9em;
+  opacity: 0;
 }
-
-.url-error-show {
-  display: flex;
+.url-error i {
+  margin-right: 5px;
 }
 
 .url-caption-box {
   order: 4;
   display: none;
   margin: 25px 0;
+  animation: appear 0.4s ease;
 }
 .url-caption-box label {
   margin-right: 15px;
@@ -216,6 +215,7 @@
   display: none;
   flex-direction: column;
   align-items: center;
+  animation: appear 0.4s ease;
 }
 
 .url-translate-box .translate-toggle-label {

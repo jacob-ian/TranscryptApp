@@ -2,6 +2,9 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+// Import the package verison
+import { version } from '../../package.json';
+
 export const environment = {
   production: false,
   firebase: {
@@ -15,6 +18,7 @@ export const environment = {
     measurementId: 'G-C7XF9CKB3V',
   },
   useLocalFunctions: true,
+  appVersion: version,
 };
 
 /*

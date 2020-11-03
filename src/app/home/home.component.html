@@ -1,13 +1,9 @@
 <form fxFlexFill class="form-container" [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
     <div class="url-input-container">
         <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
-            (input)="urlChanged($event)" required />
-        <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-valid" alt="URL is Valid">
-            <use xlink:href="assets/svg/done.svg#img"></use>
-        </svg>
-        <svg viewBox="0 0 24 24" class="url-validation-svg" id="url-invalid" alt="URL is Invalid">
-            <use xlink:href="assets/svg/error.svg#img"></use>
-        </svg>
+            (input)="urlChanged($event)" required data-done-img="<i class='material icons md-36'>done</i>" />
+        <i class="material-icons md-36 url-validation-icon" id="url-valid" alt="URL is Valid">done</i>
+        <i class="material-icons md-36 url-validation-icon" id="url-invalid" alt="URL is Invalid">error</i>
         <div id="url-loading-ring" class="lds-ring hidden">
             <div></div>
             <div></div>
@@ -17,10 +13,8 @@
     </div>
 
     <div class="url-error">
-        <svg viewBox="0 0 24 24" class="url-error-svg" id="url-invalid" alt="URL is Invalid">
-            <use xlink:href="assets/svg/error.svg#img"></use>
-        </svg>
-        <span class="url-error-message">{{errorMessage}}</span>
+        <i class="url-error-svg material-icons md-36" alt="URL is Invalid">error</i>
+        {{errorMessage}}
     </div>
     <div id='url-caption-box' class="url-caption-box">
         <label for="url-caption-select">Select a Captions Track:</label>
