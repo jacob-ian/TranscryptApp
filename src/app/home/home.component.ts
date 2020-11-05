@@ -38,7 +38,6 @@ interface CaptionsList {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class HomeComponent implements OnInit {
   // Create the variable for the URL Form
@@ -48,6 +47,9 @@ export class HomeComponent implements OnInit {
   validSvg: HTMLElement;
   invalidSvg: HTMLElement;
   loadingRing: HTMLElement;
+
+  // The Input Container
+  urlInputBox: Element;
 
   // The text input for URLS
   urlInput: HTMLElement;
@@ -93,6 +95,9 @@ export class HomeComponent implements OnInit {
 
     // Get the URL input field
     this.urlInput = document.getElementById('url-input');
+    this.urlInputBox = document.getElementsByClassName(
+      'url-input-container'
+    )[0];
 
     // Get the caption reel selector
     this.captionSelect = document.getElementById('url-caption-box');
@@ -342,7 +347,7 @@ export class HomeComponent implements OnInit {
 
     // Add the show class to the invalid svg
     this.renderer.addClass(this.invalidSvg, 'show');
-    this.renderer.addClass(this.urlInput, 'input-invalid');
+    this.renderer.addClass(this.urlInputBox, 'input-invalid');
   }
 
   /**
@@ -354,7 +359,7 @@ export class HomeComponent implements OnInit {
 
     // Add the show class to the valid svg and set the box to green
     this.renderer.addClass(this.validSvg, 'show');
-    this.renderer.addClass(this.urlInput, 'input-valid');
+    this.renderer.addClass(this.urlInputBox, 'input-valid');
   }
 
   /**
@@ -366,8 +371,8 @@ export class HomeComponent implements OnInit {
     this.renderer.removeClass(this.invalidSvg, 'show');
 
     // Remove the borders from the input
-    this.renderer.removeClass(this.urlInput, 'input-invalid');
-    this.renderer.removeClass(this.urlInput, 'input-valid');
+    this.renderer.removeClass(this.urlInputBox, 'input-invalid');
+    this.renderer.removeClass(this.urlInputBox, 'input-valid');
 
     // Reset the captions object
     this.captions = {
@@ -434,7 +439,7 @@ export class HomeComponent implements OnInit {
    */
   showCaptionsSelect(show: boolean) {
     // Determine whether to show or hide with a display property
-    const display = show ? 'block' : 'none';
+    const display = show ? 'flex' : 'none';
 
     // Add the show class to the select object
     this.renderer.setStyle(this.captionSelect, 'display', display);
@@ -452,7 +457,7 @@ export class HomeComponent implements OnInit {
     const messageBox = document.getElementsByClassName('url-error')[0];
 
     // Make it visible
-    this.renderer.setStyle(messageBox, 'opacity', '1');
+    this.renderer.setStyle(messageBox, 'display', 'flex');
   }
 
   /**
@@ -463,6 +468,6 @@ export class HomeComponent implements OnInit {
     const messageBox = document.getElementsByClassName('url-error')[0];
 
     // Make it visible
-    this.renderer.setStyle(messageBox, 'opacity', '0');
+    this.renderer.setStyle(messageBox, 'display', 'none');
   }
 }

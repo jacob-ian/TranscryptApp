@@ -2,6 +2,10 @@
 /* Import the fonts */
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&family=Poppins:wght@600&display=swap");
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --color-primary: #e62117;
   --color-secondary: #292f36;
@@ -64,4 +68,5 @@ p {
   justify-self: flex-end;
   margin-top: 30px;
   width: 100%;
+  min-height: 100px;
 }

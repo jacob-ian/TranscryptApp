@@ -1,14 +1,16 @@
-<form fxFlexFill class="form-container" [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
+<form class="form-container" [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
     <div class="url-input-container">
-        <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
+        <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste YouTube Video URL"
             (input)="urlChanged($event)" required data-done-img="<i class='material icons md-36'>done</i>" />
-        <i class="material-icons md-36 url-validation-icon" id="url-valid" alt="URL is Valid">done</i>
-        <i class="material-icons md-36 url-validation-icon" id="url-invalid" alt="URL is Invalid">error</i>
-        <div id="url-loading-ring" class="lds-ring hidden">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+        <div class="input-validation-container">
+            <i class="material-icons md-36 url-validation-icon" id="url-valid" alt="URL is Valid">done</i>
+            <i class="material-icons md-36 url-validation-icon" id="url-invalid" alt="URL is Invalid">error</i>
+            <div id="url-loading-ring" class="lds-ring hidden">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
         </div>
     </div>
 
@@ -17,7 +19,7 @@
         {{errorMessage}}
     </div>
     <div id='url-caption-box' class="url-caption-box">
-        <label for="url-caption-select">Select a Captions Track:</label>
+        <div class="url-option-label">Select a Captions Track:</div>
         <select class="transcrypt-select caption-select" id="url-caption-select" name="captions"
             (input)="captionSelected($event)" formControlName="captions" required>
             <option default hidden>Select...</option>

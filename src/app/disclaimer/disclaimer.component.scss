@@ -1,0 +1,24 @@
+.disclaimer {
+  text-align: center;
+  width: 100%;
+}
+
+.disclaimer .back-button {
+  margin-top: 25px;
+}
+
+.disclaimer .back-button a {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  justify-content: center;
+}
+
+.disclaimer .back-button a:hover {
+  cursor: pointer;
+}
+
+.disclaimer .back-button a i {
+  margin-right: 10px;
+}
