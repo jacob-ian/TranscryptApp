@@ -21,7 +21,8 @@ jobs:
       - name: Create the Release
         run: npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: 00000000-0000-0000-0000-000000000000 # a dummy token
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
