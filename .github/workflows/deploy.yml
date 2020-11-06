@@ -8,19 +8,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Build
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
+      - name: Checkout Branch
+        uses: actions/checkout@master
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@master
         with:
           node-version: '10.x'
-      - run: npm ci
-      - run: npm run build
-      - name: Create Release
-      - run: npx semantic-release
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build the App
+        run: npm run build
+      - name: Create the Release
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       - name: Deploy to Firebase
-      - uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@master
         with:
           args: deploy --only hosting,functions
         env:
