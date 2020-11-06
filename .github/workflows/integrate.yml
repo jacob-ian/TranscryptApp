@@ -6,13 +6,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Branch
+        uses: actions/checkout@v2
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
         with: 
           node-version: '10.x'
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run Tests
+        run: npm test
     
        
