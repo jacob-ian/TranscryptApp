@@ -1,3 +1,106 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import "~@angular/material/theming";
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scs
+/* For use in src/lib/core/theming/_palette.scss */
+$md-transcryptred: (
+  50: #fce4e3,
+  100: #f8bcb9,
+  200: #f3908b,
+  300: #ee645d,
+  400: #ea423a,
+  500: #e62117,
+  600: #e31d14,
+  700: #df1811,
+  800: #db140d,
+  900: #d50b07,
+  A100: #fffefe,
+  A200: #ffcccb,
+  A400: #ff9998,
+  A700: #ff807f,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  ),
+);
+
+$md-transcryptblack: (
+  50: #e5e6e7,
+  100: #bfc1c3,
+  200: #94979b,
+  300: #696d72,
+  400: #494e54,
+  500: #292f36,
+  600: #242a30,
+  700: #1f2329,
+  800: #191d22,
+  900: #0f1216,
+  A100: #5b9dff,
+  A200: #287eff,
+  A400: #0062f4,
+  A700: #0057da,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #ffffff,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #ffffff,
+    A400: #ffffff,
+    A700: #ffffff,
+  ),
+);
+
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$TranscriptApp-primary: mat-palette($md-transcryptred);
+$TranscriptApp-accent: mat-palette($md-transcryptblack, 500, 700, 900);
+
+// The warn palette is optional (defaults to red).
+$TranscriptApp-warn: mat-palette($mat-red);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$TranscriptApp-theme: mat-light-theme(
+  (
+    color: (
+      primary: $TranscriptApp-primary,
+      accent: $TranscriptApp-accent,
+      warn: $TranscriptApp-warn,
+    ),
+  )
+);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($TranscriptApp-theme);
+
 /* You can add global styles to this file, and also import other style files */
 /* Import the fonts */
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&family=Poppins:wght@600&display=swap");
@@ -69,4 +172,9 @@ p {
   margin-top: 30px;
   width: 100%;
   min-height: 100px;
+}
+
+.mat-form-field-outline-start,
+.mat-form-field-outline-end {
+  border-radius: 25px !important;
 }
