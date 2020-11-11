@@ -22,6 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
+import { StylishUrlComponent } from './stylish-url/stylish-url.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { MatRadioModule } from '@angular/material/radio';
     TranscriptComponent,
     DisclaimerComponent,
     StylishSelectComponent,
+    StylishUrlComponent,
   ],
   imports: [
     BrowserModule,

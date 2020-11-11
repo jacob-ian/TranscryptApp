@@ -1,0 +1,4 @@
+<div class="sylish-url-wrapper" [attr.data-label]="label">
+  <input #urlInput class="stylish-url" type="url" (input)="this.inputChanged($event)"
+    (change)="this.onChange($event.target.value)" (blur)="this.onTouched($event)" [disabled]="disabled" />
+</div>
