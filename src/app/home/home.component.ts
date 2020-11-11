@@ -1,10 +1,29 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { Renderer2, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Renderer2,
+  Input,
+  AfterViewInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { AngularFireFunctions } from '@angular/fire/functions';
-
 import { parse as parseUrl } from 'query-string';
+import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
+import { ThemePalette } from '@angular/material/core';
+
+/**
+ * The form interface
+ */
+interface TranscryptForm {
+  url: string; // The YouTube video ID
+  videoId: string; // The YouTube video ID
+  videoTitle: string; // the YouTube video title
+  captions: string; // the baseURL for the caption track
+  translation: {
+    enabled: boolean; // whether to auto-translate is needed
+    language: string; // the translation language code
+  };
+}
 
 /**
  * Create a caption interface object
@@ -40,13 +59,24 @@ interface CaptionsList {
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  // Create the variable for the URL Form
-  urlForm: FormGroup;
+  /**
+   * The model for the form
+   */
+  transcrypt: TranscryptForm = {
+    url: null,
+    videoId: null, // The YouTube video ID
+    videoTitle: null, // the YouTube video title
+    captions: null, // the baseURL for the caption track
+    translation: {
+      enabled: false, // whether to auto-translate is needed
+      language: null, // the translation language code
+    },
+  };
 
   // Get the two svgs for the validation indicator
   validSvg: HTMLElement;
   invalidSvg: HTMLElement;
-  loadingRing: HTMLElement;
+  loadingSpinner: Element;
 
   // The Input Container
   urlInputBox: Element;
@@ -74,24 +104,33 @@ export class HomeComponent implements OnInit {
     translation_langs: [],
   };
 
+  // Create the variables for the spinner
+  @Input() spinnerDiameter: number = 24;
+  @Input() spinnerMode: ProgressSpinnerMode = 'indeterminate';
+  @Input() spinnerColor: ThemePalette = 'accent';
+  @Input() loading: boolean = false;
+
+  // Create a variable to show that a caption has been selected
+  captionIsSelected: boolean = false;
+  @Input() selectedCaptions: any;
+
+  // Create a variable for whether a translation is needed
+  @Input() translateNeeded: boolean = false;
+
   // Constructor method
   constructor(
-    private formBuilder: FormBuilder,
     private renderer: Renderer2,
     private router: Router,
     private functions: AngularFireFunctions
-  ) {
-    this.urlForm = this.formBuilder.group({
-      captions: '',
-      language: '',
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     // Get the validation SVGs and the url input
     this.validSvg = document.getElementById('url-valid');
     this.invalidSvg = document.getElementById('url-invalid');
-    this.loadingRing = document.getElementById('url-loading-ring');
+    this.loadingSpinner = document.getElementsByClassName(
+      'url-validation-loader'
+    )[0];
 
     // Get the URL input field
     this.urlInput = document.getElementById('url-input');
@@ -110,27 +149,18 @@ export class HomeComponent implements OnInit {
    * Begin the process of downloading the transcript when the form is submitted
    * @param data The data from the submitted form
    */
-  onSubmit(data) {
-    // Get the captions query string
-    const query = this.urlForm.controls['captions'].value;
+  onSubmit(data: TranscryptForm) {
+    // Create a base64url encoded data string for the baseURL of the captions track
+    const dataQuery = btoa(data.captions);
 
-    // Get the title of the video
-    const title = this.captions.videoTitle;
-
-    // Create a base64url encoded data string for the query
-    const dataQuery = btoa(query);
-
-    // Get the translation language
-    const tlang = this.urlForm.controls['language'].value;
-
-    // Check if tlang was defined
-    if (tlang) {
+    // Check if translation was enabled
+    if (data.translation.enabled) {
       // Route to the transcript page with all of the variables
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
-          tlang,
-          title,
+          tlang: data.translation.language,
+          title: data.videoTitle,
         },
       });
     } else {
@@ -138,7 +168,7 @@ export class HomeComponent implements OnInit {
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
-          title,
+          title: data.videoTitle,
         },
       });
     }
@@ -164,6 +194,9 @@ export class HomeComponent implements OnInit {
       // We can remove the 'not-empty' class since it is empty now
       this.renderer.removeClass(event.target, 'not-empty');
 
+      // Reset the url field
+      this.transcrypt.url = null;
+
       // We can clear the other validation styles
       this.clearValidationStyles();
     }
@@ -178,28 +211,7 @@ export class HomeComponent implements OnInit {
     var value = event.target.value;
 
     // Create a show boolean depending on there is a valid selection
-    const show = value.length ? true : false;
-
-    // Show the translate box and the submit button
-    this.showTranslateBox(show);
-    this.showSubmitButton(show);
-  }
-
-  /**
-   * Shows the translation box.
-   * @param show true for show, false for hide
-   */
-  showTranslateBox(show: boolean) {
-    // Get the box div
-    const translateBox = document.getElementsByClassName(
-      'url-translate-box'
-    )[0];
-
-    // Check if we are showing or hiding the box
-    const display = show ? 'flex' : 'none';
-
-    // Trigger the display flex property
-    this.renderer.setStyle(translateBox, 'display', display);
+    this.captionIsSelected = value.length ? true : false;
   }
 
   /**
@@ -218,12 +230,8 @@ export class HomeComponent implements OnInit {
     // Trigger the display flex property
     this.renderer.setStyle(languageBox, 'display', display);
 
-    // Reset the form control language
-    this.urlForm.controls['language'].setValue(null);
-
-    // Set the selected object to the first one (the placeholder)
-    const select = document.getElementsByClassName('translate-select')[0][0];
-    select.selected = true;
+    // Reset the language to null
+    this.transcrypt.translation.language = null;
   }
 
   /**
@@ -311,24 +319,24 @@ export class HomeComponent implements OnInit {
     this.clearValidationStyles();
 
     // Start the loading animation
-    this.startLoadingAnimation();
+    this.loading = true;
 
     // Access the YouTube Video search API to check if the video exists
     try {
       var captionsList = await this.listCaptions(videoId);
 
       // Stop the loading animation
-      this.stopLoadingAnimation();
+      this.loading = false;
 
       // Set the url as valid
       this.validUrl();
 
       // Display the caption tracks to be chosen from
       this.captions = captionsList;
-      this.showCaptionsSelect(true);
+      this.transcrypt.url = url;
     } catch (err) {
       // Stop the loading animation
-      this.stopLoadingAnimation();
+      this.loading = false;
 
       // Call the invalid URL method
       this.invalidUrl();
@@ -385,23 +393,7 @@ export class HomeComponent implements OnInit {
     this.hideError();
 
     // Hide the translate box
-    this.showTranslateBox(false);
-
-    // Hide the captions reel
-    this.showCaptionsSelect(false);
-
-    // Hide the submit button
-    this.showSubmitButton(false);
-  }
-
-  startLoadingAnimation() {
-    // Remove the hidden class from the loading ring
-    this.renderer.removeClass(this.loadingRing, 'hidden');
-  }
-
-  stopLoadingAnimation() {
-    // Add the hidden class to the loading ring
-    this.renderer.addClass(this.loadingRing, 'hidden');
+    this.captionIsSelected = false;
   }
 
   /**
