@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, forwardRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  forwardRef,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnInit,
+} from '@angular/core';
 
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -14,8 +22,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class StylishSelectComponent implements OnInit, ControlValueAccessor {
+export class StylishSelectComponent implements ControlValueAccessor, OnInit {
   // The underlying select element
+  @ViewChild('selectElement', { static: true }) selectRef: ElementRef;
   select: HTMLInputElement;
 
   // The data-label attribute
@@ -34,6 +43,10 @@ export class StylishSelectComponent implements OnInit, ControlValueAccessor {
   @Input('disabled') disabled = false;
 
   constructor() {}
+  ngOnInit(): void {
+    // Get the underlying select element
+    this.select = this.selectRef.nativeElement;
+  }
 
   // The select's value
   get value(): any {
@@ -82,12 +95,5 @@ export class StylishSelectComponent implements OnInit, ControlValueAccessor {
       // Remove the 'notempty' class from the select wrapper
       wrapper.classList.remove('not-empty');
     }
-  }
-
-  ngOnInit(): void {
-    // Get the underlying select element
-    this.select = <HTMLInputElement>(
-      document.getElementsByClassName('stylish-select')[0]
-    );
   }
 }
