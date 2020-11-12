@@ -54,7 +54,7 @@ export class TranscryptService {
       const error: functions.HttpsError = err;
 
       // Rethrow the message
-      throw error.message;
+      throw { message: error.message };
     }
   }
 
