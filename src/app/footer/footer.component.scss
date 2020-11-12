@@ -35,9 +35,11 @@
   font-weight: 500;
   color: black;
   text-decoration: none;
-  transition: all ease 1s;
-  -webkit-transition: all ease 1s;
-  -moz-transition: all ease 1s;
+  transition: all ease 0.3s;
+}
+
+.footer ul li a:hover {
+  color: var(--color-primary);
 }
 
 .footer .footer-version {
