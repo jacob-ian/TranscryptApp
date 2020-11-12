@@ -90,16 +90,22 @@
 }
 
 .valid::before {
-  color: var(--valid-color);
+  color: var(--valid-color) !important;
 }
 
 .valid {
-  border-color: var(--valid-color);
+  border-color: var(--valid-color) !important;
 }
 
 .stylish-url-error {
   color: var(--color-primary);
-  margin-top: 20px;
+  margin-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
 }
 
 .stylish-url-error i {
