@@ -61,6 +61,9 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
   @Input('url') url: string;
   @Output('urlChange') urlChange = new EventEmitter<string>();
 
+  // The output event emitter for the input
+  @Output('input') input = new EventEmitter<boolean>();
+
   constructor(private service: TranscryptService) {}
 
   ngOnInit(): void {
@@ -93,6 +96,9 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
    * @param event the event from the object
    */
   async inputChanged(event: any): Promise<void> {
+    // Send out an event that the input has changed to reset the form
+    this.input.emit(true);
+
     // Remove the error
     this.error = null;
 
@@ -116,10 +122,13 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
     if (!value || value === '') {
       // Remove the not-empty class from the parent
       parent.classList.remove('not-empty');
-    } else {
-      // There is content in the input, add the not-empty class
-      parent.classList.add('not-empty');
+
+      // Return to stop further processing
+      return;
     }
+
+    // There is content in the input, add the not-empty class
+    parent.classList.add('not-empty');
 
     try {
       // Call the URL validation method
@@ -155,7 +164,7 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
 
     // Test the URL against known YouTube URL schemas
     // Create an array of valid YouTube urls and protocols
-    const protocols = ['http', 'https'];
+    const httpProtocols = ['http', 'https'];
     const validUrls = ['www.youtube.com/watch', 'youtu.be/'];
 
     // Split the URL and get its protocol
@@ -168,13 +177,31 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
 
     // Test the URL protocol
     const protocol = urlSplit[0];
-    if (!protocols.includes(protocol)) {
+
+    // Check that the protocol is defined
+    if (!protocol) {
+      // The URL is invalid
+      throw { message: 'The YouTube Video URL is invalid.' };
+    }
+
+    try {
+      if (!httpProtocols.includes(protocol)) {
+        // The URL is invalid
+        throw { message: 'The YouTube Video URL is invalid.' };
+      }
+    } catch {
       // The URL is invalid
       throw { message: 'The YouTube Video URL is invalid.' };
     }
 
     // Get the remaining part of the URL
     const remains = urlSplit[1];
+
+    // Check that remains is defined
+    if (!remains) {
+      // The URL is invalid
+      throw { message: 'The YouTube Video URL is invalid.' };
+    }
 
     // Create a variable for videoId
     var videoId: any = '';
@@ -195,6 +222,12 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
       throw { message: 'The YouTube Video URL is invalid.' };
     }
 
+    // Check that the videoId is defined
+    if (!videoId) {
+      // The URL is invalid
+      throw { message: 'The YouTube Video URL is invalid.' };
+    }
+
     // Check the length of the VideoId to make sure it is valid
     if (videoId.length !== 11) {
       // The videoId is invalid
@@ -205,6 +238,9 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
     try {
       // Fetch the captionsList object
       var captionsList = await this.service.getCaptionsList(videoId);
+
+      // Stop the loading
+      this.loading = false;
 
       // Set the url as valid
       this.urlValid = true;
