@@ -1,4 +1,14 @@
-<div class="sylish-url-wrapper" [attr.data-label]="label">
-  <input #urlInput class="stylish-url" type="url" (input)="this.inputChanged($event)"
-    (change)="this.onChange($event.target.value)" (blur)="this.onTouched($event)" [disabled]="disabled" />
+<div class="stylish-url-wrapper" [attr.data-label]="label" (click)="this.urlInput.focus()" [class.valid]="urlValid">
+  <input #urlInput class="stylish-url" type="url" (input)="this.inputChanged($event)" (blur)="this.onTouched($event)"
+    [disabled]="disabled" [name]="name" />
+  <div class="stylish-validation-wrapper">
+    <div class="url-validator" *ngIf="urlValid"><i class="material-icons md-36">done</i></div>
+    <div class="url-validator" *ngIf="error"><i class="material-icons md-36">error</i>
+    </div>
+    <div class="url-validator" *ngIf="loading">
+      <mat-progress-spinner [mode]="spinnerMode" [diameter]="spinnerDiameter" [color]="spinnerColor">
+      </mat-progress-spinner>
+    </div>
+  </div>
 </div>
+<div class="stylish-url-error" *ngIf='error'><i class="material-icons md-36">error</i>{{error}}</div>
