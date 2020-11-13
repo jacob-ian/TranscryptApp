@@ -6,13 +6,10 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: flex-grow ease-in-out 1s;
-  transition: flex-shrink ease-in-out 1s;
+  transition: flex-grow ease-in-out 0.3s;
+  transition: flex-shrink ease-in-out 0.3s;
+  transition: height ease-in-out 0.3s;
   padding: 0 50px;
-}
-
-.hidden {
-  display: hidden;
 }
 
 @keyframes appear {
@@ -28,101 +25,6 @@
 
 .url-input-container {
   width: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 30px;
-  border: 1px rgba(0, 0, 0, 0.4) solid;
-}
-
-.url-input-container:focus-within {
-  border-color: rgba(0, 0, 0, 0.6);
-}
-
-.text-box {
-  order: 1;
-  flex: 1 1 auto;
-  border-top-left-radius: 30px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 30px;
-  padding-left: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  background: transparent;
-  border: transparent;
-  transition: all ease-in-out 0.3s;
-  outline: none;
-  font: inherit;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.text-box::-webkit-placeholder {
-  color: rgba(0, 0, 0, 0.5);
-}
-.text-box::placeholder {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-/* Change the white to any color ;) */
-.text-box:-webkit-autofill,
-.text-box:-webkit-autofill:hover,
-.text-box:-webkit-autofill:focus,
-.text-box:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
-}
-
-.text-box:focus {
-  outline: none;
-}
-
-.input-valid,
-.input-valid:focus-within {
-  border-color: green !important;
-}
-
-.input-invalid,
-.input-invalid:focus-within {
-  border-color: var(--color-primary) !important;
-}
-
-.not-empty {
-  background-color: white;
-  border-color: var(--color-secondary);
-}
-
-.input-validation-container {
-  position: relative;
-  order: 2;
-  margin: 0 10px;
-  min-width: 2rem;
-  flex-grow: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-items: center;
-}
-
-.url-validation-icon {
-  color: var(--color-secondary);
-  transition: all ease-in-out 0.2s;
-  -webkit-transition: all ease-in-out 0.2s;
-  -moz-transition: all ease-in-out 0.2s;
-  transform: translateY(-50%);
-  opacity: 0;
-  background: white;
-  position: absolute;
-}
-
-.show {
-  opacity: 1;
-}
-
-.hidden {
-  display: none;
-  opacity: 0;
 }
 
 .submit-button {
