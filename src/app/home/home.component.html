@@ -1,23 +1,12 @@
 <div class="form-container">
     <div class="url-input-container">
-        <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste YouTube Video URL"
-            (input)="urlChanged($event)" required data-done-img="<i class='material icons md-36'>done</i>" />
-        <div class="input-validation-container">
-            <i class="material-icons md-36 url-validation-icon" id="url-valid" alt="URL is Valid">done</i>
-            <i class="material-icons md-36 url-validation-icon" id="url-invalid" alt="URL is Invalid">error</i>
-            <mat-progress-spinner class="url-validation-loader" [mode]='spinnerMode' [diameter]='spinnerDiameter'
-                [color]='spinnerColor' *ngIf='loading'>
-            </mat-progress-spinner>
-        </div>
+        <app-stylish-url label="YouTube Video URL" inputName="url" [(captionsList)]='this.transcrypt.captionsList'
+            [(url)]='this.transcrypt.url' (input)="this.resetForm()"></app-stylish-url>
     </div>
-    <div class="url-error">
-        <i class="url-error-svg material-icons md-36" alt="URL is Invalid">error</i>
-        {{errorMessage}}
-    </div>
-    <div id='url-caption-box' class="url-caption-box" *ngIf="transcrypt.url">
+    <div id='url-caption-box' class="url-caption-box" *ngIf="this.transcrypt.captionsList">
         <app-stylish-select id="url-caption-select" [(ngModel)]='transcrypt.captions' label="Choose Captions Track:"
-            [disabled]="!transcrypt.url" name='captions'>
-            <option *ngFor="let c of captions.captions" [value]='c.query'>{{c.name}}</option>
+            [disabled]="!transcrypt.captionsList" name='captions'>
+            <option *ngFor="let c of this.transcrypt.captionsList.captions" [value]='c.query'>{{c.name}}</option>
         </app-stylish-select>
     </div>
     <div class="url-translate-box" *ngIf='transcrypt.captions'>
@@ -37,12 +26,13 @@
             <app-stylish-select id="translate-select" label="Select Language:"
                 [(ngModel)]="transcrypt.translation.language" [disabled]="!transcrypt.translation.enabled"
                 name="translationLanguage">
-                <option *ngFor="let l of captions.translation_langs" [attr.value]="l.lang">{{l.name}}</option>
+                <option *ngFor="let l of this.transcrypt.captionsList.translation_langs" [attr.value]="l.lang">
+                    {{l.name}}</option>
             </app-stylish-select>
         </div>
 
     </div>
     <button id="url-submit" class="submit-button" type="submit" [disabled]='!transcrypt.captions'
-        (click)="onSubmit(this.transcrypt)">Get
+        (click)="submit(this.transcrypt)">Get
         Transcript</button>
 </div>
