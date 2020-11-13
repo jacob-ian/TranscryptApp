@@ -97,18 +97,10 @@ app-stylish-select {
   cursor: default;
 }
 
+/* SMALL DEVICES AND MOBILES */
 @media only screen and (max-width: 500px) {
   .form-container {
     padding: 0 15px;
-  }
-
-  .url-caption-box {
-    flex-direction: column;
-  }
-
-  .url-option-label {
-    margin-right: 0;
-    margin-bottom: 15px;
   }
 
   .translate-toggle-box {
@@ -127,8 +119,13 @@ app-stylish-select {
   .translate-select-box {
     flex-direction: column !important ;
   }
+}
 
-  .caption-select {
-    min-width: 250px;
+/* LARGE SCREEN DEVICES, e.g. DESKTOPS */
+@media only screen and (min-width: 1440px) {
+  .form-container {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
