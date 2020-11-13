@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CaptionsList } from '../transcrypt.service';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 /**
  * The form interface
@@ -21,6 +22,24 @@ interface TranscryptForm {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  animations: [
+    trigger('enterLeaveAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(50%)' }),
+        animate(
+          '0.3s ease-in-out',
+          style({ opacity: 1, transform: 'translateY(0)' })
+        ),
+      ]),
+      transition(':leave', [
+        style({ opacity: 1, transform: 'translateY(0)' }),
+        animate(
+          '0.2s ease-in-out',
+          style({ opacity: 0, transform: 'translateY(50%)' })
+        ),
+      ]),
+    ]),
+  ],
 })
 export class HomeComponent implements OnInit {
   /**
