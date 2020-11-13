@@ -44,7 +44,7 @@
 .stylish-select-wrapper::before {
   content: attr(data-label);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--label-font-size);
   color: var(--border-color);
   position: absolute;
   top: 50%;
@@ -62,7 +62,7 @@
 
 .not-empty::before,
 .stylish-select-wrapper:focus-within::before {
-  font-size: 0.6rem;
+  font-size: var(--label-font-size-small);
   top: 0;
   padding: 0 2px;
 }
