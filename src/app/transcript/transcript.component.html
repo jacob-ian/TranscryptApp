@@ -1,30 +1,34 @@
-<form class="transcript-container" [formGroup]="transcriptDownload" (ngSubmit)='onSubmit($event)' fxFlexFill>
+<div class="transcript-container">
     <div class="transcript-options">
         <div class="transcript-option back-button">
             <a routerLink="/" routerLinkActive="true"><i class="material-icons md-48">arrow_back</i>Go
                 Back</a>
         </div>
         <div class="transcript-option transcript-timestamp">
-            <label for="transcript-timestamps"><i class="material-icons md-36">schedule</i>Show Timestamps:</label>
-            <input id="transcript-timestamps" type="checkbox" (change)="toggleTimestamp($event)"
-                formControlName='timestamps' />
+            <mat-checkbox [(ngModel)]='transcript.timestamps' (ngModelChange)='updateTranscript()' [disabled]='!ready'
+                labelPosition="before">
+                <div class="timestamp-label"><i class="material-icons md-36">schedule</i> Show Timestamps:</div>
+            </mat-checkbox>
         </div>
         <div class="transcript-option transcript-buttons">
-            <div class="download-label"><i class="material-icons md-36">save_alt</i>Save as:</div>
+            <div class="download-label"><i class="material-icons md-36">save_alt</i>
+                <div class="label">Save as:</div>
+            </div>
             <ul>
-                <li><button type="submit" value="pdf" [disabled]='!enableForm'>PDF</button></li>
-                <li><button type="submit" value="word" [disabled]='!enableForm'>DOC</button>
+                <li *ngFor='let b of downloadOptions'>
+                    <button type="submit" (click)='submit($event)' [disabled]='!ready'
+                        [value]='b.value'>{{b.name}}</button>
                 </li>
-                <li><button type="submit" value="txt" [disabled]='!enableForm'>TXT</button></li>
+
             </ul>
         </div>
     </div>
-    <div class="transcript-content" id="transcript-content">
-        <div class="transcript-loading" [hidden]='!loading'>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+    <div class="transcript-content">
+        <mat-progress-spinner *ngIf='loading' [mode]='spinnerMode' [color]='spinnerColor' [diameter]='spinnerDiameter'>
+        </mat-progress-spinner>
+        <div class="transcript-error" *ngIf="this.error"><i class="material-icons md-36">error</i>
+            <div class="error-message">{{this.error}}</div>
         </div>
+        <div class="transcript-html" *ngIf="this.transcript.html" [innerHTML]="this.transcript.html"></div>
     </div>
-</form>
+</div>
