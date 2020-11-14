@@ -9,7 +9,6 @@ import { trigger, style, animate, transition } from '@angular/animations';
 interface TranscryptForm {
   url: string; // The YouTube video ID
   videoId: string; // The YouTube video ID
-  videoTitle: string; // the YouTube video title
   captionsList: CaptionsList; // the captionsList object
   captions: string; // the baseURL for the selected caption track
   translation: {
@@ -48,7 +47,6 @@ export class HomeComponent implements OnInit {
   transcrypt: TranscryptForm = {
     url: null,
     videoId: null,
-    videoTitle: null,
     captionsList: null,
     captions: null,
     translation: {
@@ -70,7 +68,6 @@ export class HomeComponent implements OnInit {
     this.transcrypt = {
       url: null,
       videoId: null,
-      videoTitle: null,
       captionsList: null,
       captions: null,
       translation: {
@@ -95,7 +92,7 @@ export class HomeComponent implements OnInit {
         queryParams: {
           data: dataQuery,
           tlang: data.translation.language,
-          title: data.videoTitle,
+          title: data.captionsList.videoTitle,
         },
       });
     } else {
@@ -103,7 +100,7 @@ export class HomeComponent implements OnInit {
       this.router.navigate([`/transcript`], {
         queryParams: {
           data: dataQuery,
-          title: data.videoTitle,
+          title: data.captionsList.videoTitle,
         },
       });
     }
