@@ -1,44 +1,19 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  ViewEncapsulation,
-  Renderer2,
-} from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { AngularFireFunctions } from '@angular/fire/functions';
+import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
+import { ThemePalette } from '@angular/material/core';
+import {
+  parseTemplate,
+  Text as CompilerText,
+  Element as CompilerElement,
+} from '@angular/compiler';
+import { TranscryptService } from '../transcrypt.service';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 import { Html5Entities } from 'html-entities';
-
-import {
-  parseTemplate,
-  Text as CompilerText,
-  Element as CompilerElement,
-} from '@angular/compiler';
-
-// Lets create some classes to define instances of the HTML nodes
-class TextNode extends CompilerText {
-  static [Symbol.hasInstance](obj) {
-    // State that if it has the value property, it is a textnode
-    if (obj.value) {
-      return true;
-    }
-  }
-}
-
-class ElementNode extends CompilerElement {
-  static [Symbol.hasInstance](obj) {
-    // State that if it has the children property, it is an element
-    if (obj.children) {
-      return true;
-    }
-  }
-}
 
 import {
   AlignmentType,
@@ -51,249 +26,150 @@ import {
 
 import { saveAs } from 'file-saver';
 
+// Lets create some classes to define instances of the HTML nodes
+class TextNode extends CompilerText {
+  static [Symbol.hasInstance](obj) {
+    // State that if it has the value property, it is a textnode
+    if (obj.value) {
+      return true;
+    }
+  }
+}
+// An HTML element node type
+class ElementNode extends CompilerElement {
+  static [Symbol.hasInstance](obj) {
+    // State that if it has the children property, it is an element
+    if (obj.children) {
+      return true;
+    }
+  }
+}
+
+/**
+ * A transcript form/data object
+ */
+interface TranscriptForm {
+  videoTitle: string; // the YouTube video title
+  videoId: string; // The YouTube video ID
+  timestamps: boolean; // Whether or not to show timestamps
+  htmlWithTime: string; // the HTML transcript with timestamps
+  htmlNoTime: string; // the HTML transcript without timestamps
+  html: string; // the HTML string of the transcript for the container
+}
+
 @Component({
   selector: 'app-transcript',
   templateUrl: './transcript.component.html',
   styleUrls: ['./transcript.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class TranscriptComponent implements OnInit {
-  // Create the form
-  transcriptDownload: FormGroup;
+  // Create a transcrypt form object
+  transcript: TranscriptForm = {
+    videoId: null,
+    videoTitle: null,
+    timestamps: false,
+    htmlWithTime: null,
+    htmlNoTime: null,
+    html: null,
+  };
 
-  // The data and language from the URL query
-  private data: string;
-  private tlang: string;
+  // Create the button download options object
+  downloadOptions = [
+    { value: 'pdf', name: 'PDF' },
+    { value: 'word', name: 'DOC' },
+    { value: 'txt', name: 'TXT' },
+  ];
 
-  // The videoId and title
-  private videoId: string;
-  private videoTitle: string;
+  // Create a boolean to enable the form inputs
+  @Input() ready: boolean = false;
 
-  // The transcript holder div
-  private transcriptContainer: HTMLElement;
+  // Create a loading boolean for the spinner
+  @Input() loading: boolean = true;
 
-  // The downloaded captions
-  private downloadedCaptions: any;
+  // Create an error message variable
+  @Input() error: string = null;
 
-  // The transcript content
-  private transcriptContent: string;
+  // Create the variables for the material progress spinner
+  @Input() spinnerMode: ProgressSpinnerMode = 'indeterminate';
+  @Input() spinnerDiameter: number = 24;
+  @Input() spinnerColor: ThemePalette = 'accent';
 
-  // Create the form boolean
-  @Input() enableForm = false;
-
-  // Create the loading boolean
-  @Input() loading = true;
-
-  constructor(
-    private router: Router,
-    private functions: AngularFireFunctions,
-    private formBuilder: FormBuilder,
-    private renderer: Renderer2
-  ) {
-    // Construct the form
-    this.transcriptDownload = this.formBuilder.group({
-      timestamps: [{ value: false, disabled: !this.enableForm }],
-    });
-
+  constructor(private service: TranscryptService, private router: Router) {
     // Get the pdf fonts
     (window as any).pdfMake.vfs = pdfFonts.pdfMake.vfs;
   }
 
   async ngOnInit(): Promise<void> {
-    // Get the current route so we can get the caption ID
+    // Start the loading
+    this.loading = true;
+
+    // Get the current route so we can get the transcript data
     const url = this.router.parseUrl(this.router.url);
 
-    // Get the URL encoded data
-    this.data = url.queryParams.data;
-    this.tlang = url.queryParams.tlang;
-    this.videoTitle = url.queryParams.title;
+    // Get the URL encoded data for the transcript request
+    const encodedBaseUrl = url.queryParams.data;
+    const tlang = url.queryParams.tlang;
 
-    // Get the videoId from the data object
-    const data = atob(this.data);
-    this.videoId = data.slice(
+    // Get the other URL encoded data
+    this.transcript.videoTitle = url.queryParams.title;
+
+    // Decode the data query to get the videoId
+    const data = atob(encodedBaseUrl);
+    this.transcript.videoId = data.slice(
       data.indexOf('v=') + 2,
       data.indexOf('&', data.indexOf('v='))
     );
 
-    // Get the transcript container
-    this.transcriptContainer = document.getElementById('transcript-content');
-
-    // Send it to the caption track downloader service
     try {
-      this.downloadedCaptions = await this.downloadTrack(this.data, this.tlang);
-      // Show the transcript without timestamps
-      this.showTranscript(false);
-    } catch (err) {
+      // Fetch the transcript from the Transcrypt service
+      const {
+        transcriptNoTime,
+        transcriptWithTime,
+      } = await this.service.getTranscript(encodedBaseUrl, tlang);
+
+      // Set the transcript form data variables
+      this.transcript.htmlWithTime = transcriptWithTime;
+      this.transcript.htmlNoTime = transcriptNoTime;
+
+      // Set the html transcript variable
+      this.transcript.html = this.transcript.timestamps
+        ? this.transcript.htmlWithTime
+        : this.transcript.htmlNoTime;
+
+      // Set the buttons to ready
+      this.ready = true;
+
+      // Stop loading
       this.loading = false;
-      this.showError(err);
-    }
-  }
-
-  /**
-   * Download a caption track from the YouTube API
-   * @param data The base64url encoded query string.
-   * @param tlang the translation language
-   */
-  async downloadTrack(data: string, tlang: string) {
-    // Use the cloud function to download the caption track
-    // Define the cloud function
-    const getCaptionTrack = this.functions.httpsCallable('getCaptionTrack');
-
-    // Get the caption track
-    try {
-      var track = await getCaptionTrack({ data, tlang }).toPromise();
-      return track;
     } catch (err) {
-      throw err;
+      // Stop the loading
+      this.loading = false;
+
+      // Get the error message
+      const message = err.message;
+
+      // Show the error
+      this.error = message;
     }
   }
 
   /**
-   * Show an error message inside the transcript box
-   * @param error the error message
+   * Called when the timestamps model changes, updates the html transcript.
    */
-  showError(error: any): void {
-    // Define the error code
-    const code = error.code;
-
-    if (code === 'internal') {
-    }
-
-    // Create an error element
-    const errorElement = document.createElement('div');
-
-    // Give it a class
-    errorElement.classList.add('transcript-error');
-
-    // Create a message element
-    const errorMessage = document.createElement('div');
-    errorMessage.innerText = error.message;
-
-    // Add it to the other element
-    errorElement.appendChild(errorMessage);
-
-    // Add a reload button to the box depending on the error, otherwise a back button
-
-    // Set the inner html of the container to the error
-    this.transcriptContainer.innerHTML = error;
-  }
-
-  /**
-   * Load the transcript into the view
-   * @param timestamps boolean whether timestamps should be shown
-   */
-  showTranscript(timestamps: boolean) {
-    // Initialize the transcript string
-    this.transcriptContent = '';
-
-    if (timestamps) {
-      // Get the length of the array
-      const length = this.downloadedCaptions.text.length;
-
-      // Find the bigget value of time in the array to determine the timestamp format
-      const maxTime = this.downloadedCaptions.text[length - 1]['$'].start;
-
-      // Check if there are any hours
-      const maxHours = Math.floor(maxTime / 3600);
-
-      // Create the time format depending on the time range
-      var timeFormat: 'hours' | 'minutes' = 'minutes';
-
-      // Check if we are in the hours range
-      if (maxHours !== 0) {
-        timeFormat = 'hours';
-      }
-
-      // Iterate over the transcript array items
-      this.downloadedCaptions.text.forEach((line: any) => {
-        // Convert the time to something useful
-        const time = line['$'].start;
-
-        // Depending on the time format required, create a timestamp
-        if (timeFormat === 'minutes') {
-          // Calculate the number of minutes
-          var hours = '';
-          var minutes = `${Math.floor(time / 60)}:`;
-          var seconds = `${Math.floor(time % 60)}`;
-
-          if (minutes.length === 2) {
-            minutes = `0${minutes}`;
-          }
-
-          if (seconds.length === 1) {
-            seconds = `0${seconds}`;
-          }
-        } else {
-          // Create a value to hold all the seconds
-          var allTime = time;
-
-          // Calculate the digits
-          var hours = `${Math.floor(allTime / 3600)}:`;
-          allTime %= 3600;
-          var minutes = `${Math.floor(allTime / 60)}:`;
-          var seconds = `${Math.floor(allTime % 60)}`;
-
-          // Create the strings
-          if (hours.length === 2) {
-            hours = `0${hours}`;
-          }
-
-          if (minutes.length === 2) {
-            minutes = `0${minutes}`;
-          }
-
-          if (seconds.length === 1) {
-            seconds = `0${seconds}`;
-          }
-        }
-
-        // Create the timestamp
-        var stamp = `${hours}${minutes}${seconds}`;
-
-        // Get the line
-        this.transcriptContent = `${this.transcriptContent}<p><b>${stamp}: </b>${line['_']}</p>`;
-      });
-    } else {
-      // Iterate over the transcript array items
-      this.downloadedCaptions.text.forEach((line: string) => {
-        // Get the line
-        this.transcriptContent = `${this.transcriptContent}<p>${line['_']}</p>`;
-      });
-    }
-
-    // Stop the loading animation
-    this.loading = false;
-
-    // Set the transcript box to the track
-    this.transcriptContainer.innerHTML = this.transcriptContent;
-
-    // Enable the form
-    this.enableForm = true;
-    this.transcriptDownload.controls['timestamps'].enable();
-  }
-
-  /**
-   * Toggle the timestamps in the transcript
-   * @param event the event of touching the checkbox
-   */
-  toggleTimestamp(event) {
-    // Get the value of the target to determine whether it is checked or not
-    const checked = event.target.checked;
-
-    // Trigger the timestamps on the transcript
-    this.showTranscript(checked);
+  updateTranscript(): void {
+    // Set the html transcript variable
+    this.transcript.html = this.transcript.timestamps
+      ? this.transcript.htmlWithTime
+      : this.transcript.htmlNoTime;
   }
 
   /**
    * Submit the form to download the transcript as a file
-   * @param event The submit event
+   * @param event The button (click) event
    */
-  onSubmit(event) {
+  submit(event) {
     // Use the event to get the value of the button
-    const format: 'pdf' | 'word' | 'txt' | 'srt' = event.submitter.value;
-
-    // Get the timestamps boolean
-    const timestamps = this.transcriptDownload.value.timestamps;
+    const format: 'pdf' | 'word' | 'txt' | 'srt' = event.target.value;
 
     // Determine which download function to use based on the format
     switch (format) {
@@ -303,7 +179,6 @@ export class TranscriptComponent implements OnInit {
       case 'word':
         // Call the DOCX downloader function
         return this.downloadWordTranscript();
-
       case 'txt':
         // Call the TXT function
         return this.downloadTxtTranscript();
@@ -348,9 +223,9 @@ export class TranscriptComponent implements OnInit {
         margin: [0, 5, 0, 0],
       },
       {
-        text: this.videoTitle,
+        text: this.transcript.videoTitle,
         style: 'header',
-        link: `https://www.youtube.com/watch?v=${this.videoId}`,
+        link: `https://www.youtube.com/watch?v=${this.transcript.videoId}`,
         margin: [0, 5, 0, 0],
       },
       {
@@ -372,7 +247,8 @@ export class TranscriptComponent implements OnInit {
       },
     ];
 
-    const htmlNodes = this.parseHtmlTranscript(this.transcriptContent);
+    // Get the HTML nodes
+    const htmlNodes = this.parseHtmlTranscript(this.transcript.html);
 
     // We can now loop through all of the HTML <p> tags as lines
     htmlNodes.forEach((line) => {
@@ -464,7 +340,7 @@ export class TranscriptComponent implements OnInit {
     doc.content = content;
 
     // Create a filename using the video title
-    const title = this.videoTitle.replace(/\s/g, '-').slice(0, 15);
+    const title = this.transcript.videoTitle.replace(/\s/g, '-').slice(0, 15);
     const filename = `transcrypt-${title}.pdf`;
 
     // Save the pdf to download it
@@ -478,8 +354,8 @@ export class TranscriptComponent implements OnInit {
     // Create the DOCX document
     const doc = new Document({
       creator: 'transcrypt.app',
-      description: `Transcript for the YouTube Video ${this.videoTitle}`,
-      title: `${this.videoTitle}`,
+      description: `Transcript for the YouTube Video ${this.transcript.videoTitle}`,
+      title: `${this.transcript.videoTitle}`,
       styles: {
         paragraphStyles: [
           {
@@ -547,7 +423,7 @@ export class TranscriptComponent implements OnInit {
     // Create a title paragraph
     const title = new Paragraph({
       heading: HeadingLevel.HEADING_1,
-      text: this.videoTitle,
+      text: this.transcript.videoTitle,
     });
 
     // Create the subtitle
@@ -586,7 +462,7 @@ export class TranscriptComponent implements OnInit {
     paragraphs.push(subTitle);
 
     // Parse the html transcript and loop through each of the lines
-    const html = this.parseHtmlTranscript(this.transcriptContent);
+    const html = this.parseHtmlTranscript(this.transcript.html);
     html.forEach((line) => {
       // Make sure that this is an element node
       if (line instanceof ElementNode) {
@@ -669,7 +545,7 @@ export class TranscriptComponent implements OnInit {
     // Download the document
     Packer.toBlob(doc).then((blob) => {
       // Create a filename using the video title
-      const title = this.videoTitle.replace(/\s/g, '-').slice(0, 15);
+      const title = this.transcript.videoTitle.replace(/\s/g, '-').slice(0, 15);
       const filename = `transcrypt-${title}.docx`;
 
       // Save to download it
@@ -683,16 +559,25 @@ export class TranscriptComponent implements OnInit {
    */
   downloadTxtTranscript() {
     // Create an output string with a title
-    var outputString = `Transcript for:\n${this.videoTitle}\nGenerated by https://transcrypt.app\n\n`;
+    var outputString = `Transcript for:\n${this.transcript.videoTitle}\nGenerated by https://transcrypt.app\n\n`;
 
-    // Loop through all of the <p> tags and remove all of the other HTML tags from the html
-    const lines = this.transcriptContent.split('<p>');
+    // Create an HTML entities decoder
+    const htmlEntities = new Html5Entities();
+
+    // Loop through all of the <p> tags and remove all of the other HTML tags from the html.
+    const lines = this.transcript.html.split('<p>');
     lines.forEach((line) => {
       // Remove the closing </p> tag
       line = line.slice(0, line.lastIndexOf('</p>'));
 
-      // Remove all XML/HTML tags
-      line = line.replace(/<.*>|<\/.*>/g, '');
+      // Decode the html entities
+      line = htmlEntities.decode(line);
+
+      // Remove all bold and italic tags
+      line = line.replace(
+        /<b>|<\/b>|<i>|<\/i>|<strong>|<\/strong>|<em>|<\/em>/g,
+        ''
+      );
 
       // Remove all of the line breaks
       line = line.replace(/\n|\n\r|\r/g, ' ');
@@ -705,7 +590,7 @@ export class TranscriptComponent implements OnInit {
     const blob = new Blob([outputString], { type: 'text/plain' });
 
     // Create a filename using the video title
-    const title = this.videoTitle.replace(/\s/g, '-').slice(0, 15);
+    const title = this.transcript.videoTitle.replace(/\s/g, '-').slice(0, 15);
     const filename = `transcrypt-${title}.txt`;
 
     // Save to download it
@@ -721,7 +606,7 @@ export class TranscriptComponent implements OnInit {
     const htmlEntities = new Html5Entities();
 
     // We can decode the transcript content so that all the special characters are human-readable
-    var html = htmlEntities.decode(this.transcriptContent);
+    var html = htmlEntities.decode(this.transcript.html);
     html = html.replace(/\n|\r|\r\n/gm, ' ');
 
     // We can now parse the html to get the DOM tree
