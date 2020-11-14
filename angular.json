@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "transcriptapp": {
+    "TranscriptApp": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -26,6 +26,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/assets/icons/*",
               "src/assets/svg/*",
               "src/manifest.webmanifest"
             ],
