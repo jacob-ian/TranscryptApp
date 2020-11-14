@@ -1,5 +1,5 @@
 {
-  "name": "transcript-app",
+  "name": "transcrypt-app",
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
