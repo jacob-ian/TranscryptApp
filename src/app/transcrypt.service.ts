@@ -30,10 +30,21 @@ export interface CaptionsList {
   translation_langs: TLangs[];
 }
 
+/**
+ * The output object of the getTranscript method
+ */
+interface TranscriptStrings {
+  transcriptNoTime: string; // an HTML string without timestamps
+  transcriptWithTime: string; // an HTML string with timestamps
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class TranscryptService {
+  // The caption track object with the transcript
+  private captionTrack: any;
+
   constructor(private functions: AngularFireFunctions) {}
 
   /**
@@ -59,12 +70,57 @@ export class TranscryptService {
   }
 
   /**
+   * Fetches the requested transcript as HTML strings with and without timestamps.
+   * @param encodedBaseUrl The urlencoded base URL of the captions track
+   * @param tlang the translation language
+   * @returns a TranscriptStrings object
+   * @throws an error message in an object
+   */
+  async getTranscript(
+    encodedBaseUrl: string,
+    tlang: string
+  ): Promise<TranscriptStrings> {
+    // Fetch the caption track from the service method
+    try {
+      this.captionTrack = await this.getCaptionTrack(encodedBaseUrl, tlang);
+    } catch (err) {
+      // Rethrow the error
+      throw err;
+    }
+
+    // Format the caption track for with and without timestamps
+    try {
+      var transcriptWithTime = this.formatTranscript(true);
+    } catch (err) {
+      // Rethrow the error
+      throw err;
+    }
+    try {
+      var transcriptNoTime = this.formatTranscript(false);
+    } catch (err) {
+      // Rethrow the error
+      throw err;
+    }
+
+    // Return the two HTML strings
+    const output: TranscriptStrings = {
+      transcriptNoTime,
+      transcriptWithTime,
+    };
+
+    return output;
+  }
+
+  /**
    * Fetches the transcript from the requested captions track/
    * @param encodedBaseUrl the baseURL of the caption track provided by the CaptionsList
    * @param tlang the language code of the translation if required
    * @returns an object with the transcript.
    */
-  async getCaptionTrack(encodedBaseUrl: string, tlang: string): Promise<any> {
+  private async getCaptionTrack(
+    encodedBaseUrl: string,
+    tlang: string
+  ): Promise<any> {
     // Define the firebase function
     var getCaptionTrackFunc = this.functions.httpsCallable('getCaptionTrack');
 
@@ -81,5 +137,95 @@ export class TranscryptService {
       // Rethrow the error message
       throw error.message;
     }
+  }
+
+  /**
+   * Format the transcript object into an HTML string
+   * @param timestamps true if timestamps are enabled, false otherwise
+   * @returns an HTML string
+   * @throws an error { message }
+   */
+  private formatTranscript(timestamps: boolean): string {
+    // Create an output line
+    var outputHtml = '';
+
+    // Check for timestamps
+    if (timestamps) {
+      // Get the length of the array
+      const length = this.captionTrack.text.length;
+
+      // Find the bigget value of time in the array to determine the timestamp format
+      const maxTime = this.captionTrack.text[length - 1]['$'].start;
+
+      // Check if there are any hours
+      const maxHours = Math.floor(maxTime / 3600);
+
+      // Create the time format depending on the time range
+      var timeFormat: 'hours' | 'minutes' = 'minutes';
+
+      // Check if we are in the hours range
+      if (maxHours !== 0) {
+        timeFormat = 'hours';
+      }
+
+      // Iterate over the transcript array items
+      this.captionTrack.text.forEach((line: any) => {
+        // Convert the time to something useful
+        const time = line['$'].start;
+
+        // Depending on the time format required, create a timestamp
+        if (timeFormat === 'minutes') {
+          // Calculate the number of minutes
+          var hours = '';
+          var minutes = `${Math.floor(time / 60)}:`;
+          var seconds = `${Math.floor(time % 60)}`;
+
+          if (minutes.length === 2) {
+            minutes = `0${minutes}`;
+          }
+
+          if (seconds.length === 1) {
+            seconds = `0${seconds}`;
+          }
+        } else {
+          // Create a value to hold all the seconds
+          var allTime = time;
+
+          // Calculate the digits
+          var hours = `${Math.floor(allTime / 3600)}:`;
+          allTime %= 3600;
+          var minutes = `${Math.floor(allTime / 60)}:`;
+          var seconds = `${Math.floor(allTime % 60)}`;
+
+          // Create the strings
+          if (hours.length === 2) {
+            hours = `0${hours}`;
+          }
+
+          if (minutes.length === 2) {
+            minutes = `0${minutes}`;
+          }
+
+          if (seconds.length === 1) {
+            seconds = `0${seconds}`;
+          }
+        }
+
+        // Create the timestamp
+        var stamp = `${hours}${minutes}${seconds}`;
+
+        // Get the line
+        outputHtml = `${outputHtml}<p><b>${stamp}: </b>${line['_']}</p>`;
+      });
+    } else {
+      // Iterate over the transcript array items
+      this.captionTrack.text.forEach((line: string) => {
+        // Get the line
+        outputHtml = `${outputHtml}<p>${line['_']}</p>`;
+      });
+    }
+
+    // Return the output HTML string
+    return outputHtml;
   }
 }
