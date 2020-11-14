@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: '10.x'
       - name: Install Dependencies
-        run: npm install
+        run: npm ci && cd functions && npm ci && cd ..
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
