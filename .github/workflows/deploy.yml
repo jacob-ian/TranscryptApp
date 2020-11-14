@@ -1,9 +1,9 @@
 name: Continuous Deployment to Firebase
 
 on:
-  release:
-    types: [publish]
-    
+  push:
+    tags:
+      - 'v*'
 jobs:
   deploy:
       name: Deploy to Firebase
