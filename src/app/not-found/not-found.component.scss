@@ -1,27 +1,28 @@
-.not-found-container {
+.not-found {
+  width: 100%;
+  text-align: center;
+}
+
+.not-found .back-button {
+  margin-top: 100px;
+}
+
+.back-button a {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  text-decoration: none;
   justify-content: center;
 }
 
-.not-found-container h2 {
-  font-size: 1.2rem;
-  margin-bottom: 50px;
-  font-weight: 500;
+.back-button a i {
+  margin-right: 10px;
 }
 
-.not-found-container .message {
-  margin-bottom: 50px;
-}
-
-.not-found-container .links .back-button a {
-  display: flex;
-  flex-direction: row;
-  text-decoration: none;
-  align-items: center;
-}
-
-.not-found-container .links .back-button a i {
-  margin-right: 5px;
+@media only screen and (max-width: 830px) {
+  .not-found {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
