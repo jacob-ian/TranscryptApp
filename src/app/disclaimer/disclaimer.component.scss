@@ -1,13 +1,13 @@
-.not-found {
-  width: 100%;
+.disclaimer {
   text-align: center;
+  width: 100%;
 }
 
-.not-found .back-button {
+.disclaimer .back-button {
   margin-top: 100px;
 }
 
-.back-button a {
+.disclaimer .back-button a {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -15,12 +15,16 @@
   justify-content: center;
 }
 
-.back-button a i {
+.disclaimer .back-button a:hover {
+  cursor: pointer;
+}
+
+.disclaimer .back-button a i {
   margin-right: 10px;
 }
 
 @media only screen and (max-width: 830px) {
-  .not-found {
+  .disclaimer {
     width: 80%;
     margin-left: auto;
     margin-right: auto;

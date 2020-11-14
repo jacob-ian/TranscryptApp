@@ -1,12 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AngularFireModule } from '@angular/fire';
-import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,8 +12,17 @@ import { environment } from '../environments/environment';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
+import { StylishSelectComponent } from './stylish-select/stylish-select.component';
+import { StylishUrlComponent } from './stylish-url/stylish-url.component';
+
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TranscriptComponent } from './transcript/transcript.component';
+import { DisclaimerComponent } from './disclaimer/disclaimer.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -25,6 +32,9 @@ import { TranscriptComponent } from './transcript/transcript.component';
     FooterComponent,
     NotFoundComponent,
     TranscriptComponent,
+    DisclaimerComponent,
+    StylishSelectComponent,
+    StylishUrlComponent,
   ],
   imports: [
     BrowserModule,
@@ -32,14 +42,16 @@ import { TranscriptComponent } from './transcript/transcript.component';
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),
-    ReactiveFormsModule,
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFireAnalyticsModule,
     AngularFireFunctionsModule,
-    FlexLayoutModule,
+    BrowserAnimationsModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatCheckboxModule,
+    FormsModule,
   ],
-  exports: [FormsModule, ReactiveFormsModule],
+  exports: [],
   providers: [],
   bootstrap: [AppComponent],
 })

@@ -5,10 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TranscriptComponent } from './transcript/transcript.component';
+import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'transcript', component: TranscriptComponent },
+  { path: 'disclaimer', component: DisclaimerComponent },
   { path: '**', component: NotFoundComponent },
 ];
 

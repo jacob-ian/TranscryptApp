@@ -1,51 +1,31 @@
-<form fxFlexFill class="form-container" [formGroup]="urlForm" (submit)="onSubmit(urlForm.value)">
-    <div class="url-input-container">
-        <input id="url-input" name="url" type="url" class="text-box" placeholder="Paste the YouTube video URL here"
-            (input)="urlChanged($event)" required data-done-img="<i class='material icons md-36'>done</i>" />
-        <i class="material-icons md-36 url-validation-icon" id="url-valid" alt="URL is Valid">done</i>
-        <i class="material-icons md-36 url-validation-icon" id="url-invalid" alt="URL is Invalid">error</i>
-        <div id="url-loading-ring" class="lds-ring hidden">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
-    <div class="url-error">
-        <i class="url-error-svg material-icons md-36" alt="URL is Invalid">error</i>
-        {{errorMessage}}
-    </div>
-    <div id='url-caption-box' class="url-caption-box">
-        <label for="url-caption-select">Select a Captions Track:</label>
-        <select class="transcrypt-select caption-select" id="url-caption-select" name="captions"
-            (input)="captionSelected($event)" formControlName="captions" required>
-            <option default hidden>Select...</option>
-            <option *ngFor="let c of captions.captions" [attr.value]='c.query'>{{c.name}}</option>
-        </select>
-    </div>
-    <div class="url-translate-box">
-        <div class="translate-toggle-box">
-            <div class="translate-toggle-label">Translate Captions?:</div>
+<div class="form-container">
+    <div class="flex-padding"></div>
+    <app-stylish-url label="YouTube Video URL" inputName="url" [(captionsList)]='this.transcrypt.captionsList'
+        [(url)]='this.transcrypt.url' (input)="this.resetForm()"></app-stylish-url>
+    <app-stylish-select *ngIf="this.transcrypt.captionsList" [@enterLeaveAnimation] [(ngModel)]='transcrypt.captions'
+        label="Choose Captions Track:" [disabled]="!transcrypt.captionsList" name='captions'>
+        <option *ngFor="let c of this.transcrypt.captionsList.captions" [value]='c.query'>{{c.name}}</option>
+    </app-stylish-select>
+    <div class="translate-toggle-box" *ngIf='transcrypt.captions' [@enterLeaveAnimation]>
+        <div class="translate-toggle-label">Translate Captions?:</div>
+        <mat-radio-group class="translate-radio-box" aria-labelledby="translate-toggle-label"
+            [(ngModel)]='transcrypt.translation.enabled' name="translationEnabled">
             <div class="translate-radio">
-                <label for="translate-yes">Yes:</label>
-                <input id="translate-yes" type="radio" name="translate-toggle" value='true'
-                    (change)="translateToggle($event)" />
+                <mat-radio-button [value]='true'>Yes</mat-radio-button>
             </div>
             <div class="translate-radio">
-                <label for="translate-no">No:</label>
-                <input id="translate-no" type="radio" name="translate-toggle" value='false'
-                    (change)="translateToggle($event)" checked />
+                <mat-radio-button [value]='false' checked>No</mat-radio-button>
             </div>
-        </div>
-        <div class="translate-select-box">
-            <label for="translate-select">Select a Language:</label>
-            <select id="translate-select" class="transcrypt-select translate-select" name="tlang"
-                formControlName="language">
-                <option default hidden>Select...</option>
-                <option *ngFor="let l of captions.translation_langs" [attr.value]="l.lang">{{l.name}}</option>
-            </select>
-        </div>
+        </mat-radio-group>
     </div>
-    <button id="url-submit" class="submit-button" type="submit" disabled>Get Transcript!</button>
-</form>
+    <app-stylish-select *ngIf='transcrypt.translation.enabled' [@enterLeaveAnimation] label="Select Language:"
+        [(ngModel)]="transcrypt.translation.language" [disabled]="!transcrypt.translation.enabled"
+        name="translationLanguage">
+        <option *ngFor="let l of this.transcrypt.captionsList.translation_langs" [attr.value]="l.lang">
+            {{l.name}}</option>
+    </app-stylish-select>
+    <button id="url-submit" class="submit-button" type="submit" [disabled]='!transcrypt.captions'
+        (click)="submit(this.transcrypt)" [@enterLeaveAnimation]>Get
+        Transcript</button>
+    <div class="flex-padding"></div>
+</div>

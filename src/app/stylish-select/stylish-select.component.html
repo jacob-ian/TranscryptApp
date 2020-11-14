@@ -1,0 +1,8 @@
+<div class="stylish-select-wrapper" [attr.data-label]='label' (click)='this.select.click()'>
+  <select #selectElement class="stylish-select" (input)="this.inputChange($event)"
+    (change)="this.onChange($event.target.value)" (blur)="this.onTouched($event)" [disabled]='disabled'>
+    <!-- The select options -->
+    <option value='' selected></option>
+    <ng-content></ng-content>
+  </select>
+</div>

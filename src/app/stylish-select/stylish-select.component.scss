@@ -1,0 +1,96 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.stylish-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+  border: none;
+  background: none;
+  min-width: 200px;
+  padding-left: 20px;
+  padding-right: 40px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font: inherit;
+}
+
+.stylish-select:focus {
+  outline: none;
+}
+
+.stylish-select:disabled {
+  display: hidden;
+}
+
+.stylish-select-wrapper {
+  --border-color: rgba(0, 0, 0, 0.5);
+  --focus-color: var(--color-primary);
+  --notempty-color: rgba(0, 0, 0, 0.8);
+  width: auto;
+  position: relative;
+  border-radius: 30px;
+  border: 1px var(--border-color) solid;
+}
+
+.stylish-select-wrapper select {
+  color: transparent;
+}
+
+.stylish-select-wrapper::before {
+  content: attr(data-label);
+  font: inherit;
+  font-size: var(--label-font-size);
+  color: var(--border-color);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 18px;
+  background-color: white;
+  z-index: 5;
+  pointer-events: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.stylish-select-wrapper:focus-within {
+  border-color: var(--focus-color);
+}
+
+.not-empty::before,
+.stylish-select-wrapper:focus-within::before {
+  font-size: var(--label-font-size-small);
+  top: 0;
+  padding: 0 2px;
+}
+
+.stylish-select-wrapper:focus-within::before {
+  color: var(--focus-color);
+}
+
+.not-empty::before {
+  color: var(--notempty-color);
+}
+
+.not-empty {
+  border-color: var(--notempty-color);
+}
+
+.not-empty select {
+  color: black;
+}
+
+.stylish-select-wrapper::after {
+  content: url("/assets/svg/expand.svg");
+  position: absolute;
+  background: transparent;
+  width: 12px;
+  height: 24px;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}

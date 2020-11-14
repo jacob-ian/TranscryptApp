@@ -1,67 +1,70 @@
 .form-container {
-  flex: 1;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  position: relative;
+  padding: 0 50px;
+  height: 100%;
+  width: 100%;
+}
+
+.flex-padding {
+  flex: 1 1 auto;
+  transition: flex 0.3s ease-in-out;
+}
+
+app-stylish-url {
+  width: 100%;
+  flex: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  transition: all ease 0.3s;
-  height: 100%;
+  margin-bottom: 25px;
 }
 
-@keyframes appear {
-  from {
-    transform: translateY(50%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+app-stylish-select {
+  margin-bottom: 25px;
+  flex: 0;
 }
 
-.url-input-container {
-  width: 100%;
-  text-align: center;
-  position: relative;
+.translate-toggle-box {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  flex: 0;
+  margin-bottom: 25px;
 }
 
-.text-box {
-  height: 3em;
-  padding-left: 10px;
-  padding-right: 10px;
-  width: 80%;
-  background: none;
-  border-radius: 25px;
-  border: 1px rgba(0, 0, 0, 0.5) solid;
-  transition: all ease 0.4s;
-  -webkit-transition: all ease 0.4s;
-  -moz-transition: all ease 0.4s;
-  outline: none;
-  text-align: left;
-  order: 1;
-  flex: 1;
-  font: inherit;
+.translate-radio-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.text-box:focus {
-  background-color: white;
-  border-color: var(--color-primary);
+.translate-toggle-box .translate-toggle-label {
+  margin-right: 20px;
 }
 
-.input-valid,
-.input-valid:focus {
-  border-color: green;
+.translate-radio-box .translate-radio {
+  margin-right: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.input-invalid,
-.input-invalid:focus {
-  border-color: var(--color-primary) !important;
+.translate-radio-box .translate-radio label {
+  font-size: 1em;
+  margin-right: 5px;
 }
 
-.not-empty {
-  background-color: white;
-  border-color: var(--color-secondary);
+.translate-radio-box .translate-radio input {
+  transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  margin-bottom: 1px;
 }
 
 .submit-button {
@@ -75,13 +78,10 @@
   padding-bottom: 15px;
   padding-left: 20px;
   padding-right: 20px;
-  margin-top: 25px;
   font-weight: 500;
-  transition: all ease 0.4s;
+  transition: all ease-in-out 0.4s;
   font-family: var(--font-family);
   font-size: 1em;
-  animation: appear 0.4s ease;
-  order: 50;
 }
 .submit-button:hover {
   cursor: pointer;
@@ -98,162 +98,35 @@
   cursor: default;
 }
 
-.url-validation-icon {
-  position: absolute;
-  color: var(--color-secondary);
-  transition: all ease 0.2s;
-  -webkit-transition: all ease 0.2s;
-  -moz-transition: all ease 0.2s;
-  right: 10%;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-}
-
-.show {
-  opacity: 1;
-}
-
-.hidden {
-  display: none;
-  opacity: 0;
-}
-
-.form-options {
-  display: none;
-  order: 2;
-}
-
-.lds-ring {
-  display: inline-block;
-  position: absolute;
-  right: 10%;
-  margin-top: 10px;
-  width: 30px;
-  height: 30px;
-}
-.lds-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin-top: 1px;
-  border: 3px solid var(--color-secondary);
-  border-radius: 50%;
-  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: var(--color-secondary) transparent transparent transparent;
-}
-.lds-ring div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-.lds-ring div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-.lds-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
+/* SMALL DEVICES AND MOBILES */
+@media only screen and (max-width: 500px) {
+  .form-container {
+    padding: 0 15px;
   }
-  100% {
-    transform: rotate(360deg);
+
+  .translate-toggle-box {
+    flex-direction: column !important;
+  }
+
+  .translate-toggle-box .translate-toggle-label {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .translate-radio-box .translate-radio:last-child {
+    margin-right: 0;
+  }
+
+  .translate-select-box {
+    flex-direction: column !important ;
   }
 }
 
-.url-error {
-  display: flex;
-  color: var(--color-primary);
-  align-items: center;
-  flex-direction: row;
-  order: 3;
-  margin-top: 15px;
-  font-size: 0.9em;
-  opacity: 0;
-}
-.url-error i {
-  margin-right: 5px;
-}
-
-.url-caption-box {
-  order: 4;
-  display: none;
-  margin: 25px 0;
-  animation: appear 0.4s ease;
-}
-.url-caption-box label {
-  margin-right: 15px;
-}
-
-.url-caption-select {
-  margin-left: 15px;
-}
-
-.transcrypt-select {
-  border-radius: 25px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 10px;
-  outline: none;
-  border: var(--font-main) 1px solid;
-  font-size: 0.9em;
-  font-family: var(--font-family);
-  position: relative;
-}
-
-.caption-select select {
-  display: none;
-}
-.caption-select:focus {
-  outline: none;
-}
-
-.url-translate-box {
-  order: 5;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  animation: appear 0.4s ease;
-}
-
-.url-translate-box .translate-toggle-label {
-  margin-right: 20px;
-}
-
-.url-translate-box .translate-toggle-box {
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-}
-
-.url-translate-box .translate-radio {
-  margin-right: 25px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.url-translate-box .translate-radio label {
-  font-size: 1em;
-  margin-right: 5px;
-}
-
-.url-translate-box .translate-radio input {
-  transform: scale(1.2);
-  -webkit-transform: scale(1.2);
-  -moz-transform: scale(1.2);
-  margin-bottom: 1px;
-}
-
-.url-translate-box .translate-select-box {
-  display: none;
-  margin-top: 25px;
-  align-items: center;
-  flex-direction: row;
-}
-
-.url-translate-box .translate-select-box label {
-  margin-right: 15px;
+/* LARGE SCREEN DEVICES, e.g. DESKTOPS */
+@media only screen and (min-width: 1440px) {
+  .form-container {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

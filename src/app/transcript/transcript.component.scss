@@ -1,4 +1,5 @@
 .transcript-container {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,6 +16,7 @@
   align-items: center;
   width: 80%;
   justify-content: space-between;
+  margin-bottom: 15px;
 }
 
 .transcript-option {
@@ -36,23 +38,14 @@
   margin-right: 5px;
 }
 
-.transcript-timestamp label {
-  margin-right: 10px;
+.timestamp-label {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  font-family: var(--font-family);
 }
-.transcript-timestamp label i {
+
+.timestamp-label i {
   margin-right: 5px;
-}
-.transcript-timestamp input[type="checkbox"] {
-  font-size: 1.1em;
-  transform: scale(1.4);
-  -webkit-transform: scale(1.4);
-  -moz-transform: scale(1.4);
-}
-.transcript-timestamp input[type="checkbox"]:checked {
-  color: var(--color-primary);
 }
 
 .transcript-buttons {
@@ -61,16 +54,12 @@
   align-items: center;
 }
 
-.transcript-buttons .download-label {
-  margin-right: 10px;
-}
-
 .transcript-buttons ul {
   list-style: none;
   display: flex;
   flex-direction: row;
-  margin-left: 0;
-  padding-left: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .transcript-buttons button {
@@ -99,6 +88,17 @@
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+.transcript-buttons .download-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.transcript-buttons .download-label i {
+  margin-right: 5px;
+}
+
 .transcript-content {
   border-radius: 25px;
   border: var(--font-main) solid 1px;
@@ -107,52 +107,61 @@
   position: relative;
   flex: 1;
   min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.transcript-loading {
-  display: inline-block;
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  left: 50%;
-  top: 50%;
-  transform: translateY(-50%) translateX(-50%);
-}
-.transcript-loading div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
+.transcript-error {
   width: 100%;
-  height: 100%;
-  margin-top: 1px;
-  border: 3px solid var(--color-primary);
-  border-radius: 50%;
-  animation: transcript-loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: var(--color-primary) transparent transparent transparent;
-}
-.transcript-loading div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-.transcript-loading div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-.transcript-loading div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes transcript-loading {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.transcript-buttons .download-label {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
 }
-.transcript-buttons .download-label i {
+
+.transcript-error i {
   margin-right: 5px;
+}
+
+.transcript-html {
+  flex: 1;
+  justify-self: start;
+  align-self: start;
+}
+
+@media only screen and (max-width: 780px) {
+  .transcript-options {
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+
+  .transcript-option {
+    margin-bottom: 15px;
+  }
+
+  .transcript-content {
+    width: 90%;
+  }
+}
+
+@media only screen and (max-width: 382px) {
+  .download-label .label {
+    display: none;
+  }
+
+  .transcript-buttons .download-label i {
+    margin-right: 0 !important;
+  }
+
+  .transcript-error {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .transcript-error i {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
 }

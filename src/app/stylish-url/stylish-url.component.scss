@@ -1,0 +1,114 @@
+.stylish-url-wrapper {
+  --border-color: rgba(0, 0, 0, 0.5);
+  --focus-color: var(--color-primary);
+  --notempty-color: rgba(0, 0, 0, 0.8);
+  --valid-color: green;
+  width: 100%;
+  position: relative;
+  border: 1px var(--border-color) solid;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.stylish-url {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  background: transparent;
+  border-radius: 30px;
+  padding: 20px;
+  font: inherit;
+  flex: 1 1 auto;
+  order: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stylish-url:focus {
+  outline: none;
+}
+
+/* Fix the autofill colours */
+.stylish-url:-webkit-autofill,
+.stylish-url:-webkit-autofill:hover,
+.stylish-url:-webkit-autofill:focus,
+.stylish-url:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+}
+
+.stylish-validation-wrapper {
+  position: relative;
+  margin-right: 20px;
+  flex: 0;
+  flex-basis: 24px;
+  order: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.stylish-url-wrapper::before {
+  display: block;
+  position: absolute;
+  content: attr(data-label);
+  font: inherit;
+  font-size: var(--label-font-size);
+  color: var(--border-color);
+  top: 50%;
+  transform: translateY(-50%);
+  left: 20px;
+  background-color: white;
+  z-index: 5;
+  pointer-events: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.stylish-url-wrapper:focus-within {
+  border-color: var(--focus-color);
+}
+
+.not-empty::before,
+.stylish-url-wrapper:focus-within::before {
+  font-size: var(--label-font-size-small);
+  top: 0;
+  padding: 0 2px;
+}
+
+.stylish-url-wrapper:focus-within::before {
+  color: var(--focus-color);
+}
+
+.not-empty::before {
+  color: var(--notempty-color);
+}
+
+.not-empty {
+  border-color: var(--notempty-color);
+}
+
+.valid::before {
+  color: var(--valid-color) !important;
+}
+
+.valid {
+  border-color: var(--valid-color) !important;
+}
+
+.stylish-url-error {
+  color: var(--color-primary);
+  margin-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+}
+
+.stylish-url-error i {
+  margin-right: 10px;
+}
