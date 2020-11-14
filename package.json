@@ -1,6 +1,6 @@
 {
-  "name": "transcript-app",
-  "version": "2.0.0",
+  "name": "transcrypt-app",
+  "version": "1.0.0"
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
