@@ -1,6 +1,6 @@
-name: Continuous Release and Deployment
+name: Continuous Release
 
-on: 
+on:
   push:
     branches: [master]
 
@@ -14,31 +14,10 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@master
         with:
-          node-version: '10.x'
+          node-version: "10.x"
       - name: Install Dependencies
         run: npm ci
       - name: Create the Release
         run: npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}       
-  deploy: 
-    name: Deploy to Firebase
-    needs: [release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Branch
-        uses: actions/checkout@master
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@master
-        with:
-          node-version: '10.x'
-      - name: Install Dependencies
-        run: npm ci && cd functions && npm ci && cd ..
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-            args: deploy --only hosting,functions
-        env: 
-            FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        
-    
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
