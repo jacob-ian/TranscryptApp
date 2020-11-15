@@ -1,27 +1,13 @@
-# TranscriptApp
+# transcrypt
+*Download YouTube Video Transcripts*
+<p style="text-align: center; font-size: 0.8rem;">Created by <a href="https://jacobianmatthews.com" target="_blank">Jacob Ian Matthews</a></p>
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.2.
+## Contribute
 
-## Development server
+Contribution to this project is allowed. If there are any features that you think should be included, create an issue or a pull request with the completed feature.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+This project uses Semantic Release, therefore use of the Angular commit message convention is required. Read the commit conventions [here](https://github.com/semantic-release/semantic-release#commit-message-format). If the commit convention isn't used, the pull request will be closed without merge.
 
-## Code scaffolding
+## License
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+This application uses the Apache License 2.0.
