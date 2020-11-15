@@ -84,12 +84,12 @@
       "@semantic-release/release-notes-generator",
       "@semantic-release/npm",
       [
-        "@semantic-release/git",
+        "@semantic-release/github",
         {
           "assets": [
-            "package.json"
-          ],
-          "message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
+            "**/*.*",
+            "!dist"
+          ]
         }
       ]
     ]
