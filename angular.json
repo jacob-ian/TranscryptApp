@@ -28,7 +28,9 @@
               "src/assets",
               "src/assets/icons/*",
               "src/assets/svg/*",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/robots.txt",
+              "src/assets/sitemap.xml"
             ],
             "styles": ["src/styles.scss"],
             "scripts": []
