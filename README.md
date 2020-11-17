@@ -1,6 +1,12 @@
 # transcrypt
-*Download YouTube Video Transcripts*
+
+_Download YouTube Video Transcripts_
+
 <p style="text-align: center; font-size: 0.8rem;">Created by <a href="https://jacobianmatthews.com" target="_blank">Jacob Ian Matthews</a></p>
+
+## Future Updates
+
+- [ ] Add Stripe Donation button
 
 ## Contribute
 
