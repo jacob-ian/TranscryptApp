@@ -3,7 +3,7 @@
     "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build"
   },
   "hosting": {
-    "predeploy": "npm run build --prod",
+    "predeploy": "npm run build",
     "public": "dist/TranscriptApp",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
