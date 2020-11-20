@@ -32,4 +32,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
           name: 'transcrypt.app Workflow Bot'
-          icon_url: 'https://transcrypt.app/assets/icons/android-chrome-192x192.png':  
+          icon_url: 'https://transcrypt.app/assets/icons/android-chrome-192x192.png'
