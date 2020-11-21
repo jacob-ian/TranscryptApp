@@ -13,6 +13,17 @@ import { decode } from 'urlencode';
 import { URLSearchParams } from 'url';
 import streamToPromise from 'stream-to-promise';
 import base64url from 'base64url';
+import Stripe from 'stripe';
+
+// Check for the development flag
+if (process.env.DEVELOPMENT) {
+  // Import the Stripe Test Secret
+  const config = require('../secret.json');
+  var stripeSecret = config.stripe.secret;
+} else {
+  // Get the stripe secret from firebase
+  var stripeSecret = functions.config().stripe.secret;
+}
 
 /**
  * Create a caption interface object
@@ -313,4 +324,27 @@ exports.getCaptionTrack = functions.https.onCall(async (data) => {
   }
 
   return transcript;
+});
+
+/**
+ * Create a Stripe payment intent.
+ * @returns the Stripe PaymentIntent
+ */
+exports.createPaymentIntent = functions.https.onCall(async (data) => {
+  // Extract the data from the request
+  const { amount, currency } = data;
+
+  // Create the stripe instance
+  const stripe = new Stripe(stripeSecret, {
+    apiVersion: '2020-08-27',
+  });
+
+  // Create a payment intent
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount,
+    currency,
+  });
+
+  // Return the payment intent
+  return paymentIntent;
 });

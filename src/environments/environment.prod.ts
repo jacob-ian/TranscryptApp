@@ -1,8 +1,18 @@
-// Import the package verison
+/**
+ * Create variables for the production environment.
+ */
+
+// Import the version from package.json
 import { version } from '../../package.json';
 
+// Setup the environment variables
 export const environment = {
   production: true,
+  appVersion: version,
+  stripe: {
+    publishableKey:
+      'pk_live_51HhpYRKhhuCbc2FakmShlIJmRpVMAmCY9rkIlU5qJGklyCaTEo9QVocfD9cPq7ucKN4Kj70tgy4qA368UbAseU3K00PNcTeUpX',
+  },
   firebase: {
     apiKey: 'AIzaSyDD-tPF3CNoekbd9AEpq_BZjE66AtcsW0o',
     authDomain: 'transcript-app-290409.firebaseapp.com',
@@ -13,5 +23,4 @@ export const environment = {
     appId: '1:153388996756:web:08ac13df83b49a2eeb3c81',
     measurementId: 'G-C7XF9CKB3V',
   },
-  appVersion: version,
 };

@@ -23,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DonateComponent } from './donate/donate.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     DisclaimerComponent,
     StylishSelectComponent,
     StylishUrlComponent,
+    DonateComponent,
   ],
   imports: [
     BrowserModule,
