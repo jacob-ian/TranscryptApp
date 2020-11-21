@@ -25,3 +25,15 @@ jobs:
         run: firebase deploy --only hosting,functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  notify:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    name: Post Deploy Status to Slack
+    steps:
+      - name: Slack Workflow Notifications
+        uses: Gamesight/slack-workflow-status@master
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          name: 'transcrypt.app Workflow Bot'
+          icon_url: 'https://transcrypt.app/assets/icons/android-chrome-192x192.png'
