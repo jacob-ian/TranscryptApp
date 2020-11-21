@@ -96,15 +96,8 @@
           "prepareCmd": "npm run build:ci"
         }
       ],
-      [
+     
         "@semantic-release/github",
-        {
-          "assets": [
-            "dist",
-            "functions/lib"
-          ]
-        }
-      ],
       [
         "@semantic-release/git",
         {
