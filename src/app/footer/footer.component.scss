@@ -40,6 +40,7 @@
 
 .footer ul li a:hover {
   color: var(--color-primary);
+  cursor: pointer;
 }
 
 .footer .footer-version {
@@ -48,11 +49,36 @@
   margin-top: -5px;
 }
 
+app-donate {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  z-index: 50;
+}
+
 @media only screen and (max-width: 600px) {
   .footer {
     width: auto;
     padding: 0 10px 10px 10px;
     margin: 0;
+  }
+}
+
+@media only screen and (max-width: 380px) {
+  .footer ul {
+    flex-flow: row wrap;
+  }
+
+  .footer ul li:first-child {
+    margin-bottom: 5px;
+  }
+
+  .footer ul li:nth-child(2) {
+    opacity: 0;
+    flex-basis: 100%;
+    height: 0;
   }
 }
 
