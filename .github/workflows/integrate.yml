@@ -13,9 +13,9 @@ jobs:
         with: 
           node-version: '10.x'
       - name: Install Dependencies
-        run: npm ci
+        run: npm run install:ci
       - name: Run Build
-        run: npm run build
+        run: npm run build:ci
   notify:
     needs: [build]
     runs-on: ubuntu-latest
