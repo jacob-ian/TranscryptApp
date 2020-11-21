@@ -18,7 +18,7 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
       - name: Add Environment Variables to the Back-End
-        run: firebase functions config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
+        run: firebase functions:config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       - name: Deploy to Firebase
