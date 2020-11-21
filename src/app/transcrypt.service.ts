@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { functions } from 'firebase';
+import { environment } from 'src/environments/environment';
 
 /**
  * Create a caption interface object
@@ -45,7 +46,13 @@ export class TranscryptService {
   // The caption track object with the transcript
   private captionTrack: any;
 
-  constructor(private functions: AngularFireFunctions) {}
+  constructor(private functions: AngularFireFunctions) {
+    // Determine the environment and use local functions otherwise
+    if (!environment.production) {
+      // Use local functions
+      this.functions.useFunctionsEmulator('http://localhost:5001');
+    }
+  }
 
   /**
    * Fetches the list of captions and translation languages for a YouTube video.
@@ -227,5 +234,41 @@ export class TranscryptService {
 
     // Return the output HTML string
     return outputHtml;
+  }
+
+  /**
+   * Get's the Stripe client secret from the payment intent
+   * @param amount the payment amount in cents
+   * @param currency the currency of the payment
+   * @returns a string with the client secret
+   */
+  async getStripeClientSecret(
+    amount: number,
+    currency: string
+  ): Promise<string> {
+    // Define the firebase function
+    var createPaymentIntent = this.functions.httpsCallable(
+      'createPaymentIntent'
+    );
+
+    // Try get the payment intent
+    try {
+      var paymentIntent = await createPaymentIntent({
+        amount,
+        currency,
+      }).toPromise();
+    } catch (err) {
+      // Throw an error message
+      throw {
+        message:
+          'There was a problem with Stripe payments. No donation was taken.',
+      };
+    }
+
+    // Get the client secret from the payment intent
+    const clientSecret = paymentIntent.client_secret;
+
+    // Return the secret
+    return clientSecret;
   }
 }
