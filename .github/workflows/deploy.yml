@@ -1,7 +1,9 @@
 name: Continuous Deploy to Firebase
+
 on:
   release:
     types: [published]
+
 jobs:
   deploy:
     name: Deploy to Firebase
@@ -13,11 +15,13 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: "10.x"
-      - name: Install Dependencies for Hosting and Functions
-        run: npm ci && cd functions && npm ci && cd ..
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+      - name: Add Environment Variables to the Back-End
+        run: firebase functions config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting,functions
+        run: firebase deploy --only hosting,functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
