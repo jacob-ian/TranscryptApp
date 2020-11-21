@@ -1,6 +1,6 @@
 {
   "name": "transcrypt-app",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -96,8 +96,7 @@
           "prepareCmd": "npm run build:ci"
         }
       ],
-     
-        "@semantic-release/github",
+      "@semantic-release/github",
       [
         "@semantic-release/git",
         {
