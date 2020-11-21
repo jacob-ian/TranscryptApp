@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: "10.x"
       - name: Install the Semantic Release Dependencies
-        run: npm install -D semantic-release @semantic-release/git @semantic-release/npm @semantic-release/exec last-release-git
+        run: npm install -D semantic-release @semantic-release/git @semantic-release/npm last-release-git
       - name: Create the Release
         run: npx semantic-release
         env:
