@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: "10.x"
       - name: Install Dependencies For the Front-end and Functions
-        run: npm run prebuild
+        run: npm run install:ci
       - name: Create the Release
         run: npx semantic-release
         env:
