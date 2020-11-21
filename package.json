@@ -1,6 +1,6 @@
 {
   "name": "transcrypt-app",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -47,7 +47,7 @@
     "@angular/cli": "~10.1.2",
     "@angular/compiler-cli": "~10.1.2",
     "@semantic-release/git": "^9.0.0",
-    "@semantic-release/npm": "^7.0.6",
+    "@semantic-release/npm": "^7.0.8",
     "@types/file-saver": "^2.0.1",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
@@ -71,7 +71,7 @@
     "last-release-git": "0.0.3",
     "open": "^7.0.3",
     "protractor": "~7.0.0",
-    "semantic-release": "^17.2.2",
+    "semantic-release": "^17.2.4",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.0.2"
