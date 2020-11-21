@@ -14,10 +14,12 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: "10.x"
-      - name: List Directory Tree
-        run: ls -R
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
+      - name: Install Release Dependencies
+        run: npm run install:ci
+      - name: Build Release for Deployment
+        run: npm run build:ci
       - name: Add Environment Variables to the Back-End
         run: firebase functions:config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
         env:
