@@ -10,7 +10,7 @@
     <app-stylish-select label="Donation Amount" [(ngModel)]='paymentAmount' (change)="createPaymentRequest()">
       <option *ngFor="let o of paymentOptions" [value]='o.amount'>${{o.amount/100}} - {{o.name}}</option>
     </app-stylish-select>
-    <div #paymentContainer [@slideInOut] *ngIf="!this.thanks"></div>
+    <div id="payment-button-container" [@slideInOut] *ngIf="!this.thanks"></div>
     <div *ngIf="this.error" class="error-message" [@slideInOut]><i class="material-icons md-36">error</i>{{error}}</div>
     <div *ngIf='this.thanks' class="thanks" [@slideInOut]>Thank you for your donation!</div>
   </div>
