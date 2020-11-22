@@ -43,9 +43,6 @@ export class DonateComponent implements OnInit {
   @Input('show') show: boolean;
   @Output('showChange') showChanged = new EventEmitter<boolean>();
 
-  // The container for the request payment button
-  @ViewChild('paymentContainer', { static: true }) paymentContainer: ElementRef;
-
   // Create an error message string
   @Input() error: string;
 
@@ -77,10 +74,7 @@ export class DonateComponent implements OnInit {
    */
   constructor(private service: TranscryptService) {}
 
-  async ngOnInit(): Promise<void> {
-    // Load Stripe
-    this.stripe = Stripe(environment.stripe.publishableKey);
-  }
+  ngOnInit(): void {}
 
   /**
    * On change of value of the donation amount, the stripe element will be created.
@@ -88,6 +82,9 @@ export class DonateComponent implements OnInit {
    * @returns a Promise of a void
    */
   async createPaymentRequest() {
+    // Load Stripe
+    this.stripe = Stripe(environment.stripe.publishableKey);
+
     // Check to make sure that the amount is non-null
     if (this.paymentAmount) {
       // Get the Stripe Elements
@@ -118,7 +115,7 @@ export class DonateComponent implements OnInit {
       // Check if it can make a payment
       if (this.canMakePayment) {
         // Mount the button
-        this.payButton.mount(this.paymentContainer.nativeElement);
+        this.payButton.mount('#payment-button-container');
 
         // Add on on change listener to display errors
         this.payButton.addEventListener('change', ({ error }) => {
