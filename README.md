@@ -6,7 +6,8 @@ _Download YouTube Video Transcripts_
 
 ## Future Updates
 
-- [ ] Add Stripe Donation button
+- [x] Add a Donation button with Stripe Card payments
+- [ ] Add the PaymentRequest API for Apple & Google Pay alongside existing Card payments
 
 ## Contribute
 

@@ -24,6 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DonateComponent } from './donate/donate.component';
+import { StylishEmailComponent } from './stylish-email/stylish-email.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { DonateComponent } from './donate/donate.component';
     StylishSelectComponent,
     StylishUrlComponent,
     DonateComponent,
+    StylishEmailComponent,
   ],
   imports: [
     BrowserModule,

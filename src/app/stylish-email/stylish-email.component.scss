@@ -1,0 +1,120 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.stylish-email-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.stylish-email {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+  border: none;
+  background: none;
+  padding-left: 20px;
+  padding-right: 40px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-radius: 30px;
+  font: inherit;
+  width: 100%;
+}
+
+.stylish-email:focus {
+  outline: none;
+}
+
+/* Fix the autofill colours */
+.stylish-email:-webkit-autofill,
+.stylish-email:-webkit-autofill:hover,
+.stylish-email:-webkit-autofill:focus,
+.stylish-email:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+}
+
+.stylish-email-wrapper {
+  --border-color: rgba(0, 0, 0, 0.5);
+  --focus-color: var(--color-primary);
+  --notempty-color: rgba(0, 0, 0, 0.8);
+  --valid-color: green;
+  min-width: 300px;
+  position: relative;
+  border-radius: 30px;
+  border: 1px var(--border-color) solid;
+  flex: 1;
+  order: 1;
+}
+
+.stylish-email-wrapper::before {
+  content: attr(data-label);
+  font: inherit;
+  font-size: var(--label-font-size);
+  color: var(--border-color);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 18px;
+  background-color: white;
+  z-index: 5;
+  pointer-events: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.stylish-email-wrapper:focus-within {
+  border-color: var(--focus-color);
+}
+
+.not-empty::before,
+.stylish-email-wrapper:focus-within::before {
+  font-size: var(--label-font-size-small);
+  top: 0;
+  padding: 0 2px;
+}
+
+.stylish-email-wrapper:focus-within::before {
+  color: var(--focus-color);
+}
+
+.not-empty::before {
+  color: var(--notempty-color);
+}
+
+.not-empty {
+  border-color: var(--notempty-color);
+}
+
+.valid::before {
+  color: var(--valid-color) !important;
+}
+
+.valid {
+  border-color: var(--valid-color) !important;
+}
+
+.email-validators {
+  flex: 0;
+  order: 2;
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-error {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.email-error i {
+  margin-right: 5px;
+}
