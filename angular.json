@@ -25,13 +25,15 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
+              "src/favicon-16x16.png",
+              "src/favicon-32x32.png",
               "src/assets",
               "src/assets/icons/*",
               "src/assets/svg/*",
               "src/manifest.webmanifest",
               "src/robots.txt",
               "src/assets/sitemap.xml",
-              "src/.well-known/*"
+              "src/.well-known/apple-developer-merchantid-domain-association"
             ],
             "styles": ["src/styles.scss"],
             "scripts": []

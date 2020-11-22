@@ -13,3 +13,7 @@ node_modules/
 
 # Stripe test secret
 secret.json
+
+# Firebase logs
+firebase-debug.log
+ui-debug.log
