@@ -186,6 +186,15 @@ app-transcript {
   flex-direction: column;
 }
 
+app-donate h3 {
+  margin-top: 0;
+}
+
+app-donate .donation-confirmation {
+  font-family: Roboto Mono, monospace;
+  padding-top: 10px;
+}
+
 /* LARGE SCREEN DEVICES, e.g. DESKTOPS */
 @media only screen and (min-width: 1440px) {
   :root {
