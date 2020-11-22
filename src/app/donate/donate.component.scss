@@ -35,12 +35,9 @@
   margin-bottom: 15px;
 }
 
-.donation-card h2 {
+.donation-card h2,
+h3 {
   margin-top: 0;
-}
-
-.donation-card strong {
-  letter-spacing: 1px;
 }
 
 .donation-card .red {
@@ -61,6 +58,82 @@
   cursor: pointer;
 }
 
+@keyframes hideForm {
+  from {
+    opacity: 1;
+    height: auto;
+    overflow: auto;
+  }
+
+  to {
+    opacity: 0;
+    height: 0;
+    overflow: none;
+    position: absolute;
+  }
+}
+
+.donation-card .hidden {
+  opacity: 0;
+  height: 0;
+  overflow: none;
+  position: absolute;
+  pointer-events: none;
+}
+
+.donation-card form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: hideForm 0.3s ease-in-out;
+}
+
+.donation-card app-stylish-email {
+  margin-top: 15px;
+}
+
+.donation-card app-stylish-select {
+  min-width: 300px;
+}
+
+.donation-card .card-details {
+  margin: 15px 0;
+  padding: 20px;
+  flex: 0;
+  border-radius: 30px;
+  border: rgba(0, 0, 0, 0.5) solid 1px;
+  transition: border-color 0.3s ease-in-out;
+  min-width: 300px;
+}
+
+.donation-card .donate-button {
+  width: auto;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background-color: #9a1111;
+  color: white;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-weight: 500;
+  transition: all ease-in-out 0.3s;
+  font-family: var(--font-family);
+  font-size: 1em;
+}
+
+.donation-card .donate-button:hover,
+.donation-card .donate-button:focus {
+  cursor: pointer;
+  background-color: var(--color-primary) !important;
+}
+
+.donation-card mat-progress-spinner {
+  margin: 15px 0;
+}
+
 .error-message {
   display: flex;
   flex-direction: row;
@@ -75,7 +148,7 @@
 }
 
 .thanks {
-  margin-top: 15px;
+  margin: 15px 0;
   text-align: center;
 }
 

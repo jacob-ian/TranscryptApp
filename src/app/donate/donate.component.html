@@ -1,17 +1,31 @@
 <div class="donation-container">
-  <div class="donation-backdrop" (click)="setShow(false)"></div>
+  <div #backdrop class="donation-backdrop" (click)="setShow(false)"></div>
   <div class="donation-card">
-    <a class="donation-close" (click)="setShow(false)"><i class="material-icons md-36" alt="Close">close</i></a>
+    <a #close class="donation-close" [style.pointer-events]="loading ? 'none' : 'all'" (click)="setShow(false)"><i
+        class="material-icons md-36" alt="Close">close</i></a>
     <div class="message">
       <h2>Donate</h2>
-      <p>Please consider donating to help keep <strong>transcr<span class="red">y</span>p<span
-            class="red">t</span></strong> running ad-free.</p>
+      <p>Please consider donating to keep <strong>transcr<span class="red">y</span>p<span class="red">t</span></strong>
+        running ad-free.</p>
     </div>
-    <app-stylish-select label="Donation Amount" [(ngModel)]='paymentAmount' (change)="createPaymentRequest()">
-      <option *ngFor="let o of paymentOptions" [value]='o.amount'>${{o.amount/100}} - {{o.name}}</option>
-    </app-stylish-select>
-    <div id="payment-button-container" [@slideInOut] *ngIf="!this.thanks"></div>
-    <div *ngIf="this.error" class="error-message" [@slideInOut]><i class="material-icons md-36">error</i>{{error}}</div>
-    <div *ngIf='this.thanks' class="thanks" [@slideInOut]>Thank you for your donation!</div>
+    <form id="payment-form" (submit)="submitPayment($event)" [@slideInOut] [class.hidden]="!showForm">
+      <app-stylish-select label="Donation Amount" [(ngModel)]='paymentAmount' name="amount">
+        <option *ngFor="let o of paymentOptions" [value]='o.amount'>${{o.amount/100}} - {{o.name}}</option>
+      </app-stylish-select>
+      <app-stylish-email [@slideInOut] *ngIf="paymentAmount" label="Email Address" [(email)]="customerEmail"
+        (emailChange)="mountCardElement($event ? true : false)"></app-stylish-email>
+      <div id="card-element" class="card-details" [@slideInOut] *ngIf="showDetails">
+      </div>
+      <button class="donate-button" type="submit" *ngIf="showButton" [@slideInOut]>Donate
+        ${{paymentAmount/100}}</button>
+    </form>
+
+    <div *ngIf="this.error" class="error-message" [@slideInOut]><i class="material-icons md-36">error</i>{{error}}
+    </div>
+    <mat-progress-spinner [mode]="loaderMode" [color]="loaderColor" [diameter]="loaderDiameter" *ngIf="loading"
+      [@slideInOut]>
+    </mat-progress-spinner>
+    <div *ngIf='this.thanks' class="thanks" [@slideInOut] [innerHTML]='this.thanks'>
+    </div>
   </div>
 </div>
