@@ -1,31 +1,71 @@
-<div class="donation-container">
+<div class="donation-container" [style.opacity]="contentOpacity">
   <div #backdrop class="donation-backdrop" (click)="setShow(false)"></div>
-  <div class="donation-card">
-    <a #close class="donation-close" [style.pointer-events]="loading ? 'none' : 'all'" (click)="setShow(false)"><i
-        class="material-icons md-36" alt="Close">close</i></a>
-    <div class="message">
-      <h2>Donate</h2>
-      <p>Please consider donating to keep <strong>transcr<span class="red">y</span>p<span class="red">t</span></strong>
-        running ad-free.</p>
-    </div>
-    <form id="payment-form" (submit)="submitPayment($event)" [@slideInOut] [class.hidden]="!showForm">
-      <app-stylish-select label="Donation Amount" [(ngModel)]='paymentAmount' name="amount">
-        <option *ngFor="let o of paymentOptions" [value]='o.amount'>${{o.amount/100}} - {{o.name}}</option>
-      </app-stylish-select>
-      <app-stylish-email [@slideInOut] *ngIf="paymentAmount" label="Email Address" [(email)]="customerEmail"
-        (emailChange)="mountCardElement($event ? true : false)"></app-stylish-email>
-      <div id="card-element" class="card-details" [@slideInOut] *ngIf="showDetails">
+  <div #cardView class="donation-card">
+    <a #close class="donation-close" [@fadeInOut]="loading ? 'out': 'in'"
+      [style.pointer-events]="loading ? 'none' : 'all'" (click)="setShow(false)"><i class="material-icons md-36"
+        alt="Close">close</i></a>
+    <div class="donation-request" [@fadeInOut]="!this.loading && !this.requestComplete ? 'in' :'out'">
+      <div class="message">
+        <h2>Donate</h2>
+        <p>Please consider donating to keep <strong>transcr<span class="red">y</span>p<span
+              class="red">t</span></strong>
+          running ad-free.</p>
       </div>
-      <button class="donate-button" type="submit" *ngIf="showButton" [@slideInOut]>Donate
-        ${{paymentAmount/100}}</button>
-    </form>
-
-    <div *ngIf="this.error" class="error-message" [@slideInOut]><i class="material-icons md-36">error</i>{{error}}
+      <form (submit)="submitPayment($event)">
+        <!-- Donation Amount Selector -->
+        <app-stylish-select label="Donation Amount" [(ngModel)]='paymentAmount' name="amount">
+          <option *ngFor="let o of paymentOptions" [value]='o.amount'>A{{o.amountPretty}} - {{o.name}}</option>
+        </app-stylish-select>
+        <!-- Email Address Input -->
+        <app-stylish-email [@fadeInOut]="paymentAmount ? 'in' : 'out'" label="Email Address" [(email)]="customerEmail"
+          [disabled]="!paymentAmount">
+        </app-stylish-email>
+        <!-- Stripe Card Details Input -->
+        <div id="card-element" class="card-details" [@fadeInOut]="paymentAmount && customerEmail ? 'in' : 'out'"
+          [class.valid]="validCard" [class.invalid]="error">
+        </div>
+        <!-- Pay Button -->
+        <button class="donate-button" type="submit"
+          [disabled]="!(showButton && paymentAmount && customerEmail && validCard)"
+          [@fadeInOut]="(showButton && paymentAmount && customerEmail && validCard) ? 'in' : 'out'">
+          <i class="material-icons md-36">https</i>Pay
+          Securely</button>
+      </form>
     </div>
-    <mat-progress-spinner [mode]="loaderMode" [color]="loaderColor" [diameter]="loaderDiameter" *ngIf="loading"
-      [@slideInOut]>
+    <!-- Error message -->
+    <div class="error-message" [@fadeInOut]="this.error ? 'in' : 'out'"><i
+        class="material-icons md-36">error</i>{{error}}
+    </div>
+    <!-- Loading spinner -->
+    <mat-progress-spinner [mode]="loaderMode" [color]="loaderColor" [diameter]="loaderDiameter"
+      [@fadeInOut]="loading ? 'in': 'out'">
     </mat-progress-spinner>
-    <div *ngIf='this.thanks' class="thanks" [@slideInOut] [innerHTML]='this.thanks'>
+    <div class="donation-complete" *ngIf="donationComplete" [@specialFadeInOut]>
+      <h2>Payment Successful!</h2>
+      <div class="donation-tick">
+        <i class="material-icons md-54">done</i>
+      </div>
+      <div class="donation-confirmation-details">
+        <div class="donation-details-row">
+          <div class="donation-details-label">Payment ID</div>
+          <div class="donation-details-data">{{donation.id}}</div>
+        </div>
+        <div class="donation-details-row">
+          <div class="donation-details-label">Amount Paid</div>
+          <div class="donation-details-data">AU${{getPrettyAmount(donation.amountReceived)}}</div>
+        </div>
+        <div class="donation-details-row" *ngIf="donation.cardDetails">
+          <div class="donation-details-label">Card Details</div>
+          <div class="donation-details-data">{{donation.cardDetails}}</div>
+        </div>
+        <div class="donation-details-row">
+          <div class="donation-details-label">Email Address</div>
+          <div class="donation-details-data">{{customerEmail}}</div>
+        </div>
+      </div>
+      <div class="donation-thankyou">
+        Thank you for supporting <strong>transcr<span class="red">y</span>p<span class="red">t</span></strong>!
+      </div>
     </div>
   </div>
 </div>

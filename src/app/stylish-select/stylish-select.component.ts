@@ -4,8 +4,8 @@ import {
   forwardRef,
   ViewChild,
   ElementRef,
-  AfterViewInit,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -22,7 +22,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class StylishSelectComponent implements ControlValueAccessor, OnInit {
+export class StylishSelectComponent
+  implements ControlValueAccessor, OnInit, OnDestroy {
   // The underlying select element
   @ViewChild('selectElement', { static: true }) selectRef: ElementRef;
   select: HTMLInputElement;
@@ -43,9 +44,15 @@ export class StylishSelectComponent implements ControlValueAccessor, OnInit {
   @Input('disabled') disabled = false;
 
   constructor() {}
+
   ngOnInit(): void {
     // Get the underlying select element
     this.select = this.selectRef.nativeElement;
+  }
+
+  ngOnDestroy(): void {
+    // Write a null value
+    this.writeValue(null);
   }
 
   // The select's value

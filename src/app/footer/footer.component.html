@@ -8,5 +8,5 @@
         <li><a (click)="this.showDonate = true">Donate</a></li>
     </ul>
     <div class="footer-version">Version: {{version}}</div>
-    <app-donate [@showDonation] *ngIf="showDonate" [(show)]='this.showDonate'></app-donate>
+    <app-donate [@showDonation] *ngIf="showDonate" [(show)]='this.showDonate' [stripe]='stripe'></app-donate>
 </div>

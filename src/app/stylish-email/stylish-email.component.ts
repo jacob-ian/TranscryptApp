@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   Input,
   Output,
   ViewChild,
@@ -25,23 +26,28 @@ import { trigger, style, animate, transition } from '@angular/animations';
   animations: [
     trigger('slideInOut', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(50%)' }),
+        style({ opacity: 0, transform: 'translateY(25%)', 'flex-grow': 0.001 }),
         animate(
-          '0.3s ease-in-out',
-          style({ opacity: 1, transform: 'translateY(0)' })
+          '0.2s ease-in-out',
+          style({ opacity: 1, transform: 'translateY(0)', 'flex-grow': 1 })
         ),
       ]),
       transition(':leave', [
-        style({ opacity: 1, transform: 'translateY(0)' }),
+        style({ opacity: 1, transform: 'translateY(0)', 'flex-grow': 1 }),
         animate(
           '0.2s ease-in-out',
-          style({ opacity: 0, transform: 'translateY(50%)' })
+          style({
+            opacity: 0,
+            transform: 'translateY(25%)',
+            'flex-grow': 0.001,
+          })
         ),
       ]),
     ]),
   ],
 })
-export class StylishEmailComponent implements OnInit, ControlValueAccessor {
+export class StylishEmailComponent
+  implements OnInit, OnDestroy, ControlValueAccessor {
   // Create the label input
   @Input('label') label: string;
 
@@ -56,7 +62,7 @@ export class StylishEmailComponent implements OnInit, ControlValueAccessor {
   emailInput: HTMLInputElement;
 
   // Create a valid email output emitter
-  @Output('email') email: string;
+  @Input('email') email: string;
   @Output('emailChange') emailChange = new EventEmitter<string>();
 
   // Create the validation booleans/string
@@ -101,6 +107,14 @@ export class StylishEmailComponent implements OnInit, ControlValueAccessor {
     this.emailInput = this.emailRef.nativeElement;
   }
 
+  ngOnDestroy(): void {
+    // Set the email to null
+    this.setEmail(null);
+
+    // Remove the timer
+    this.timeoutId = null;
+  }
+
   /**
    * Validate the email input
    * @param value the email string in the input
@@ -134,8 +148,12 @@ export class StylishEmailComponent implements OnInit, ControlValueAccessor {
         } else {
           // Set the email to invalid
           this.error = 'Please enter a valid email address.';
+          this.valid = false;
+
+          // Emit a null email
+          this.setEmail(null);
         }
-      }, 500);
+      }, 200);
     } else {
       // The input is empty, remove all validation
       this.valid = false;

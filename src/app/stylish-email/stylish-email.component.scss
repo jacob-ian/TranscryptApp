@@ -89,12 +89,22 @@
   border-color: var(--notempty-color);
 }
 
-.valid::before {
-  color: var(--valid-color) !important;
+.valid::before,
+.valid:focus-within::before {
+  color: var(--valid-color);
 }
 
-.valid {
-  border-color: var(--valid-color) !important;
+.valid,
+.valid:focus-within {
+  border-color: var(--valid-color);
+}
+
+.invalid::before {
+  color: var(--focus-color);
+}
+
+.invalid {
+  border-color: var(--focus-color);
 }
 
 .email-validators {
