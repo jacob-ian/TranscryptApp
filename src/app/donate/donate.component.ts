@@ -77,6 +77,22 @@ interface ConfirmedDonation {
         animate('0.3s ease-in-out'),
       ]),
     ]),
+    trigger('specialFadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, 'flex-grow': 0.001 }),
+        animate('0.2s ease-in-out', style({ opacity: 1, 'flex-grow': 1 })),
+      ]),
+      transition(':leave', [
+        style({ opacity: 1, 'flex-grow': 1 }),
+        animate(
+          '0.2s ease-in-out',
+          style({
+            opacity: 0,
+            'flex-grow': 0.001,
+          })
+        ),
+      ]),
+    ]),
   ],
 })
 export class DonateComponent implements OnInit {

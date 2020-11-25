@@ -39,7 +39,7 @@
     <mat-progress-spinner [mode]="loaderMode" [color]="loaderColor" [diameter]="loaderDiameter"
       [@fadeInOut]="loading ? 'in': 'out'">
     </mat-progress-spinner>
-    <div class="donation-complete" *ngIf="donationComplete" [@fadeInOut]="donationComplete ? 'in' : 'out'">
+    <div class="donation-complete" *ngIf="donationComplete" [@specialFadeInOut]>
       <h2>Payment Successful!</h2>
       <div class="donation-tick">
         <i class="material-icons md-54">done</i>
