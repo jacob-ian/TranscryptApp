@@ -7,15 +7,24 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
+import {
+  trigger,
+  style,
+  animate,
+  transition,
+  state,
+  AnimationEvent,
+} from '@angular/animations';
 
 import { TranscryptService } from '../transcrypt.service';
-import { environment } from 'src/environments/environment';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 import { ThemePalette } from '@angular/material/core';
 
-// Define the stripe namespace
-declare var Stripe;
+interface ConfirmedDonation {
+  id: string; // The paymentIntent ID
+  amountReceived: number; // the amount received
+  cardDetails: string; // the card brand and last 4 numbers
+}
 
 @Component({
   selector: 'app-donate',
@@ -23,19 +32,49 @@ declare var Stripe;
   styleUrls: ['./donate.component.scss'],
   animations: [
     trigger('slideInOut', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(50%)' }),
-        animate(
-          '0.3s ease-in-out',
-          style({ opacity: 1, transform: 'translateY(0)' })
-        ),
+      state(
+        'out',
+        style({
+          opacity: 0,
+          transform: 'translateY(25%)',
+          display: 'none',
+          'flex-grow': 0,
+        })
+      ),
+      state(
+        'in',
+        style({
+          opacity: 1,
+          transform: 'translateY(0)',
+          display: '*',
+          'flex-grow': 1,
+        })
+      ),
+      transition('in <=> out', [
+        style({ display: '*', 'flex-grow': 0.001 }),
+        animate('0.3s ease-in-out'),
       ]),
-      transition(':leave', [
-        style({ opacity: 1, transform: 'translateY(0)' }),
-        animate(
-          '0.2s ease-in-out',
-          style({ opacity: 0, transform: 'translateY(50%)' })
-        ),
+    ]),
+    trigger('fadeInOut', [
+      state(
+        'out',
+        style({
+          opacity: 0,
+          display: 'none',
+          'flex-grow': 0,
+        })
+      ),
+      state(
+        'in',
+        style({
+          opacity: 1,
+          display: '*',
+          'flex-grow': 1,
+        })
+      ),
+      transition('in <=> out', [
+        style({ display: '*', 'flex-grow': 0.001 }),
+        animate('0.3s ease-in-out'),
       ]),
     ]),
   ],
@@ -45,39 +84,53 @@ export class DonateComponent implements OnInit {
   @Input('show') show: boolean;
   @Output('showChange') showChanged = new EventEmitter<boolean>();
 
+  // Get the card view
+  @ViewChild('cardView', { static: true }) cardViewRef: ElementRef;
+  cardView: HTMLElement;
+
   // Create an error message string
   @Input() error: string;
 
+  // Create a card validation boolean
+  @Input() validCard: boolean = false;
+
+  // Create the staging, request complete boolean
+  @Input() requestComplete: boolean = false;
+
   // Create a payment success thank you/confirmation message
-  @Input() thanks: string;
+  @Input() donationComplete: boolean;
+
+  // Create a variable to control the opacity of all of the content
+  @Input() contentOpacity: number = 1;
 
   // Create an input for the customer's email address
   @Input() customerEmail: string;
 
+  // Create an input for the confirmed donation details
+  @Input()
+  donation: ConfirmedDonation = {
+    id: null,
+    amountReceived: null,
+    cardDetails: null,
+  };
+
   // Define stripe and its elements
-  stripe;
+  @Input('stripe') stripe: any;
   cardElement;
 
   // Define the payment amounts
   paymentOptions = [
-    { amount: 100, name: 'Small Donation' },
-    { amount: 250, name: 'Standard Donation' },
-    { amount: 500, name: 'Medium Donation' },
-    { amount: 1000, name: 'Large Donation' },
+    { amount: 250, name: 'Standard Donation', amountPretty: '$2.50' },
+    { amount: 500, name: 'Medium Donation', amountPretty: '$5.00' },
+    { amount: 1000, name: 'Large Donation', amountPretty: '$10.00' },
   ];
 
   // Define the payment amount and currency
   paymentAmount: number;
   paymentCurrency: string = 'aud';
 
-  // The show card details boolean
-  @Input() showDetails: boolean = false;
-
   // The payment button visibility boolean
   @Input() showButton: boolean = false;
-
-  // The form visibility boolean
-  @Input() showForm: boolean = true;
 
   // Create a timer for mounting the card
   timer: any;
@@ -95,9 +148,17 @@ export class DonateComponent implements OnInit {
   constructor(private service: TranscryptService) {}
 
   ngOnInit(): void {
-    // Load Stripe
-    this.stripe = Stripe(environment.stripe.publishableKey);
+    // Define the card view
+    this.cardView = this.cardViewRef.nativeElement;
 
+    // Create the Stripe card element
+    this.createCardElement();
+  }
+
+  /**
+   * Mount the card element to the card-element div
+   */
+  createCardElement(): void {
     // Create the stripe element
     const elements = this.stripe.elements();
 
@@ -113,59 +174,39 @@ export class DonateComponent implements OnInit {
         },
       },
       invalid: {
-        color: '#fa755a',
-        iconColor: '#fa755a',
+        color: '#e62117',
+        iconColor: '#e62117',
       },
     };
 
     // Create the card element
     this.cardElement = elements.create('card', { style: style });
-  }
 
-  /**
-   * Mount the card element to the card-element div
-   * @param mount boolean, true if mounting required
-   */
-  mountCardElement(mount: boolean): void {
-    // Check if we are mounting or not
-    if (mount) {
-      // Set the show details boolean to true
-      this.showDetails = true;
+    // Mount the card element to the DOM
+    this.cardElement.mount('#card-element');
 
-      // Check if the timeout is already made
-      if (this.timer) {
-        // Clear the timer and call again
-        clearTimeout(this.timer);
+    // Regirster an on input change listener for the card element
+    this.cardElement.on('change', (event) => {
+      // Remove the error
+      this.error = null;
+
+      // Hide the button
+      this.showButton = false;
+
+      // Check if the validation is complete
+      if (event.complete) {
+        // Set the card to valid
+        this.validCard = true;
+
+        // Show the donate button
+        this.showButton = true;
+      } else if (event.error) {
+        // The card didn't validate correctly, show the error and hide the button
+        this.validCard = false;
+        this.showButton = false;
+        this.error = event.error.message;
       }
-
-      // Create a timeout
-      this.timer = setTimeout(() => {
-        // Mount the card element
-        this.cardElement.mount('#card-element');
-
-        // Regirster an on input change listener for the card element
-        this.cardElement.on('change', (event) => {
-          // Remove the error
-          this.error = null;
-
-          // Hide the button
-          this.showButton = false;
-
-          // Check if the validation is complete
-          if (event.complete) {
-            // Show the donate button
-            this.showButton = true;
-          } else if (event.error) {
-            // The card didn't validate correctly, show the error and hide the button
-            this.showButton = false;
-            this.error = event.error.message;
-          }
-        });
-      }, 100);
-    } else {
-      // Hide the card details
-      this.showDetails = false;
-    }
+    });
   }
 
   /**
@@ -182,7 +223,10 @@ export class DonateComponent implements OnInit {
     } catch (err) {
       // Stop loading and show the error
       this.loading = false;
-      this.error = err.message;
+      setTimeout(() => {
+        this.requestComplete = false;
+        this.error = err.message;
+      }, 100);
     }
   }
 
@@ -190,47 +234,100 @@ export class DonateComponent implements OnInit {
    * Attempt to pay with the provided card
    */
   async payWithCard(): Promise<void> {
-    // Start loading and hide the form
-    this.loading = true;
+    // Start loading and hide the form by setting the request to complete
+    this.requestComplete = true;
+    setTimeout(async () => {
+      this.loading = true;
 
-    // Hide the form
-    this.showForm = false;
+      // Create a payment intent and get the Stripe Client Secret
+      try {
+        var clientSecret = await this.service.getStripeClientSecret(
+          this.paymentAmount,
+          this.paymentCurrency
+        );
+      } catch (err) {
+        // Rethrow the error
+        throw err;
+      }
 
-    // Create a payment intent and get the Stripe Client Secret
-    try {
-      var clientSecret = await this.service.getStripeClientSecret(
-        this.paymentAmount,
-        this.paymentCurrency
-      );
-    } catch (err) {
-      // Rethrow the error
-      throw err;
-    }
+      // Attempt to confirm the card payment
+      try {
+        var paymentResult = await this.stripe.confirmCardPayment(clientSecret, {
+          receipt_email: this.customerEmail,
+          payment_method: {
+            card: this.cardElement,
+            billing_details: {
+              email: this.customerEmail,
+            },
+          },
+        });
+      } catch (err) {
+        // Rethrow the error
+        throw err;
+      }
 
-    // Attempt to confirm the card payment
-    try {
-      var paymentResult = await this.stripe.confirmCardPayment(clientSecret, {
-        receipt_email: this.customerEmail,
-        payment_method: {
-          card: this.cardElement,
-        },
-      });
-    } catch (err) {
-      // Rethrow the error
-      throw err;
-    }
+      // Check if there was an error in the result
+      if (paymentResult.error) {
+        // Throw an error with the message
+        throw { message: paymentResult.error.message };
+      } else {
+        // Stop the loading and pass the request staging boolean
+        this.loading = false;
 
-    // Check if there was an error in the result
-    if (paymentResult.error) {
-      // Throw an error with the message
-      throw { message: paymentResult.error.message };
+        // Wait for the loading to disappear
+        setTimeout(() => {
+          // Set done on the payment
+          this.donationComplete = true;
+
+          // Save the payment ID and the received amount
+          this.donation.id = paymentResult.paymentIntent.id;
+          this.donation.amountReceived = paymentResult.paymentIntent
+            .amount_received
+            ? paymentResult.paymentIntent.amount_received
+            : this.paymentAmount;
+
+          // Check if the charges object is available
+          const charges = paymentResult.paymentIntent.charges;
+          if (charges) {
+            // Get the card details from the payment intent
+            const cardDetails =
+              paymentResult.paymentIntent.charges.data[0].payment_method_details
+                .card;
+
+            const cardBrand: string = cardDetails.brand;
+            const cardLastFour: string = cardDetails.last4;
+
+            // Create a string for the card used
+            this.donation.cardDetails = `${cardBrand.toUpperCase()} x-${cardLastFour}`;
+          }
+        }, 200);
+      }
+    }, 200);
+  }
+
+  /**
+   * Returns the more readable version of the payment amount
+   * @param amount the payment amount in cents
+   * @returns a string with the pretty amount
+   */
+  getPrettyAmount(amount: number): string {
+    // Convert to string
+    const amountStr = `${amount / 100}`;
+
+    // Split at the decimal place
+    if (amountStr.includes('.')) {
+      const split = amountStr.split('.')[1];
+
+      // Check how many decimal places we have
+      if (split.length < 2) {
+        // Add a zero to the end
+        return `${amountStr}0`;
+      } else {
+        return amountStr;
+      }
     } else {
-      // The payment was successful, display a success message
-      // Stop the loading
-      this.loading = false;
-
-      // Display the success message
-      this.thanks = `<h3>Donation Successful!</h3><p>Confirmation ID:</p><p class="donation-confirmation">${paymentResult.paymentIntent.id}</p><br><p>Thank you for your donation!</p>`;
+      // Add a decimal place and two 0s
+      return `${amountStr}.00`;
     }
   }
 
@@ -241,11 +338,17 @@ export class DonateComponent implements OnInit {
   setShow(value: boolean): void {
     // Prevent the dialog from closing if the payment is processing
     if (!this.loading) {
-      // Change the value
-      this.show = value;
+      // Set all of the content opacity to 0
+      this.contentOpacity = 0;
 
-      // Emit the value to the parent component
-      this.showChanged.emit(value);
+      // Let the opacity fade before emitting the show value
+      setTimeout(() => {
+        // Change the value
+        this.show = value;
+
+        // Emit the value to the parent component
+        this.showChanged.emit(value);
+      }, 200);
     }
   }
 }
