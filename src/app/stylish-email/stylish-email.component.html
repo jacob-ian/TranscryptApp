@@ -1,9 +1,7 @@
-<div class="stylish-email-container">
-  <div class="stylish-email-wrapper" [attr.data-label]='label' (click)="this.emailInput.focus()"
-    [class.not-empty]="notEmpty" [class.valid]="valid">
-    <input #email class="stylish-email" type="email" aria-labelledby="stylish-email-wrapper"
-      (change)="this.onChange($event.target.value)" (blur)="this.onTouched($event)" [disabled]="disabled"
-      (input)="validateEmail($event.target.value)" name="email" />
-  </div>
+<div class="stylish-email-wrapper" [attr.data-label]='label' (click)="this.emailInput.focus()"
+  [class.not-empty]="notEmpty" [class.valid]="valid">
+  <input #email class="stylish-email" type="email" aria-labelledby="stylish-email-wrapper"
+    (change)="this.onChange($event.target.value)" (blur)="this.onTouched($event)" [disabled]="disabled"
+    (input)="validateEmail($event.target.value)" name="email" />
 </div>
 <div [@slideInOut] class="email-error" *ngIf="error"><i class="material-icons md-36">error</i>{{error}}</div>
