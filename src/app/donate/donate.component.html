@@ -1,8 +1,9 @@
 <div class="donation-container" [style.opacity]="contentOpacity">
   <div #backdrop class="donation-backdrop" (click)="setShow(false)"></div>
   <div #cardView class="donation-card">
-    <a #close class="donation-close" [style.pointer-events]="loading ? 'none' : 'all'" (click)="setShow(false)"><i
-        class="material-icons md-36" alt="Close">close</i></a>
+    <a #close class="donation-close" [@fadeInOut]="loading ? 'out': 'in'"
+      [style.pointer-events]="loading ? 'none' : 'all'" (click)="setShow(false)"><i class="material-icons md-36"
+        alt="Close">close</i></a>
     <div class="donation-request" [@fadeInOut]="!this.loading && !this.requestComplete ? 'in' :'out'">
       <div class="message">
         <h2>Donate</h2>
@@ -45,24 +46,22 @@
         <i class="material-icons md-54">done</i>
       </div>
       <div class="donation-confirmation-details">
-        <table>
-          <tr>
-            <th>Payment ID</th>
-            <td>{{donation.id}}</td>
-          </tr>
-          <tr>
-            <th>Amount Paid</th>
-            <td>AU${{getPrettyAmount(donation.amountReceived)}}</td>
-          </tr>
-          <tr *ngIf="donation.cardDetails">
-            <th>Card Details</th>
-            <td>{{donation.cardDetails}}</td>
-          </tr>
-          <tr>
-            <th>Email Address</th>
-            <td>{{customerEmail}}</td>
-          </tr>
-        </table>
+        <div class="donation-details-row">
+          <div class="donation-details-label">Payment ID</div>
+          <div class="donation-details-data">{{donation.id}}</div>
+        </div>
+        <div class="donation-details-row">
+          <div class="donation-details-label">Amount Paid</div>
+          <div class="donation-details-data">AU${{getPrettyAmount(donation.amountReceived)}}</div>
+        </div>
+        <div class="donation-details-row" *ngIf="donation.cardDetails">
+          <div class="donation-details-label">Card Details</div>
+          <div class="donation-details-data">{{donation.cardDetails}}</div>
+        </div>
+        <div class="donation-details-row">
+          <div class="donation-details-label">Email Address</div>
+          <div class="donation-details-data">{{customerEmail}}</div>
+        </div>
       </div>
       <div class="donation-thankyou">
         Thank you for supporting <strong>transcr<span class="red">y</span>p<span class="red">t</span></strong>!

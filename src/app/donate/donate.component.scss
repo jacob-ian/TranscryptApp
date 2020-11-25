@@ -182,19 +182,23 @@ h3 {
   margin: 15px 0;
 }
 
-.donation-complete table {
-  margin: 0 30px;
+.donation-confirmation-details {
+  margin: 0 40px;
   font-size: 0.9rem;
 }
 
-.donation-confirmation-details table th,
-td {
-  padding-top: 10px;
-  padding-bottom: 10px;
+.donation-confirmation-details .donation-details-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.donation-confirmation-details table th {
-  padding-right: 10px;
+.donation-confirmation-details .donation-details-label {
+  margin-right: 20px;
+  font-weight: bold;
 }
 
 .donation-thankyou {
@@ -221,6 +225,19 @@ td {
     margin-right: 0;
     margin-top: 5px;
     order: 2;
+  }
+
+  .donation-details-row {
+    flex-direction: column !important;
+    margin: 20px 0 !important;
+  }
+
+  .donation-details-data {
+    margin-top: 10px;
+  }
+
+  .donation-details-label {
+    margin-right: 0 !important;
   }
 }
 
