@@ -7,6 +7,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .donation-backdrop {
@@ -29,10 +30,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  transition: height 0.2s ease-in-out;
 }
 
-.donation-card .message {
+.donation-card * {
+  transition: all 0.2s ease-in-out;
+}
+
+.donation-request {
+  display: flex;
+  flex-direction: column;
+}
+
+.donation-request .message {
   margin-bottom: 15px;
+}
+
+.donation-request .message h2 {
+  text-align: center;
 }
 
 .donation-card h2,
@@ -58,21 +74,6 @@ h3 {
   cursor: pointer;
 }
 
-@keyframes hideForm {
-  from {
-    opacity: 1;
-    height: auto;
-    overflow: auto;
-  }
-
-  to {
-    opacity: 0;
-    height: 0;
-    overflow: none;
-    position: absolute;
-  }
-}
-
 .donation-card .hidden {
   opacity: 0;
   height: 0;
@@ -86,7 +87,6 @@ h3 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  animation: hideForm 0.3s ease-in-out;
 }
 
 .donation-card app-stylish-email {
@@ -98,13 +98,21 @@ h3 {
 }
 
 .donation-card .card-details {
-  margin: 15px 0;
+  margin-top: 15px;
   padding: 20px;
   flex: 0;
   border-radius: 30px;
   border: rgba(0, 0, 0, 0.5) solid 1px;
   transition: border-color 0.3s ease-in-out;
   min-width: 300px;
+}
+
+.donation-card .valid {
+  border-color: green;
+}
+
+.donation-card .invalid {
+  border-color: var(--color-primary);
 }
 
 .donation-card .donate-button {
@@ -122,6 +130,14 @@ h3 {
   transition: all ease-in-out 0.3s;
   font-family: var(--font-family);
   font-size: 1em;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.donate-button i {
+  margin-right: 5px;
 }
 
 .donation-card .donate-button:hover,
@@ -131,7 +147,7 @@ h3 {
 }
 
 .donation-card mat-progress-spinner {
-  margin: 15px 0;
+  margin: 50px 150px;
 }
 
 .error-message {
@@ -147,9 +163,42 @@ h3 {
   margin-right: 5px;
 }
 
-.thanks {
+.donation-complete {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donation-tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: green 1px solid;
+  padding: 10px;
+  border-radius: 50%;
+  color: green;
   margin: 15px 0;
-  text-align: center;
+}
+
+.donation-complete table {
+  margin: 0 30px;
+  font-size: 0.9rem;
+}
+
+.donation-confirmation-details table th,
+td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.donation-confirmation-details table th {
+  padding-right: 10px;
+}
+
+.donation-thankyou {
+  margin-top: 30px;
 }
 
 @media only screen and (max-width: 570px) {
