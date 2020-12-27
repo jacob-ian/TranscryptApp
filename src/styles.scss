@@ -102,8 +102,6 @@ $TranscriptApp-theme: mat-light-theme(
 @include angular-material-theme($TranscriptApp-theme);
 
 /* You can add global styles to this file, and also import other style files */
-/* Import the fonts */
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&family=Poppins:wght@600&display=swap");
 
 * {
   box-sizing: border-box;
