@@ -101,16 +101,18 @@ exports.getCaptionsList = functions.https.onCall(async (data) => {
           `Access to the YouTube API was denied.`
         );
       default:
-        throw new functions.https.HttpsError('unknown', 'An error occurred.');
+        throw new functions.https.HttpsError(
+          'internal',
+          `A known error has occurred - I'm working on fixing it right now!`
+        );
     }
   }
 
-  // Get the readable stream and pipe it into a string
-  var stream = await res.readable();
-
-  // Get the buffer from the stream
   try {
+    // Get the readable stream and pipe it into a string
+    var stream = await res.readable();
     var buffer = await streamToPromise(stream);
+    // Get the buffer from the stream
   } catch {
     // Throw an error
     throw new functions.https.HttpsError(
