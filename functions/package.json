@@ -10,27 +10,29 @@
     "dev": "tsc && firebase serve --only functions"
   },
   "engines": {
-    "node": "10"
+    "node": "12"
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@types/node": "^15.12.5",
     "base64url": "^3.0.1",
     "fetch-h2": "^2.5.1",
-    "firebase-admin": "^9.2.0",
-    "firebase-functions": "^3.6.1",
+    "firebase-admin": "^9.10.0",
+    "firebase-functions": "^3.14.1",
     "stream-to-promise": "^3.0.0",
-    "stripe": "^8.124.0",
+    "stripe": "^8.157.0",
     "urlencode": "^1.1.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.5.7",
+    "@types/express": "^4.17.12",
+    "@types/node-fetch": "^2.5.10",
     "@types/stream-to-promise": "^2.2.1",
     "@types/urlencode": "^1.1.2",
-    "@types/xml2js": "^0.4.5",
-    "firebase-functions-test": "^0.2.0",
-    "ts-node": "^9.0.0",
-    "typescript": "^3.8.0"
+    "@types/xml2js": "^0.4.8",
+    "firebase-functions-test": "^0.2.3",
+    "ts-node": "^9.1.1",
+    "typescript": "^3.9.10"
   },
   "private": true
 }

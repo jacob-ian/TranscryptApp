@@ -1,5 +1,7 @@
 {
-  "functions": {},
+  "functions": {
+    "source": "functions"
+  },
   "hosting": {
     "public": "dist/TranscriptApp",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
