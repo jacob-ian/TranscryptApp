@@ -57,7 +57,7 @@ export class TranscryptService {
     try {
       return await this.get(GET_CAPTION_LIST_URL, { videoId }).toPromise();
     } catch (error) {
-      throw error.error;
+      throw { message: error.error.error_message };
     }
   }
 
@@ -73,10 +73,7 @@ export class TranscryptService {
     translationLanguage: string
   ): Promise<Transcripts> {
     try {
-      return await this.get(GET_CAPTION_TRACK_URL, {
-        data: encodedBaseUrl,
-        tlang: translationLanguage,
-      })
+      return await this.getCaptionTrack(encodedBaseUrl, translationLanguage)
         .pipe(
           map((captionTrack) => {
             return this.formatCaptionTrack(captionTrack);
@@ -87,8 +84,23 @@ export class TranscryptService {
       if (error.error.error_message) {
         throw { message: error.error.error_message };
       }
-      throw { message: error.message };
+      throw { message: JSON.stringify(error) };
     }
+  }
+
+  private getCaptionTrack(data: string, tlang: string): Observable<any> {
+    let params: any;
+    if (tlang) {
+      params = {
+        data,
+        tlang,
+      };
+    } else {
+      params = {
+        data,
+      };
+    }
+    return this.get(GET_CAPTION_TRACK_URL, params);
   }
 
   private formatCaptionTrack(captionTrack: any): Transcripts {

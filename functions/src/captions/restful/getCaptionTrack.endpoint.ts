@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import { Get } from 'firebase-backend';
 import { Request, Response } from 'express';
 import base64url from 'base64url';
@@ -10,20 +9,26 @@ const { fetch } = context({
 });
 
 export default new Get(async (req: Request, res: Response) => {
-  const captionTrackUrl = getCaptionUrlFromRequest(req.body);
-  const captionTrackXml = await getCaptionTrackXml(captionTrackUrl);
-  return res.status(200).send(captionTrackXml);
+  try {
+    let captionTrack = await getCaptionTrack(req);
+    return respondWithCaptionTrack(res, captionTrack);
+  } catch (error) {
+    return respondWithError(res, error);
+  }
 });
 
-function getCaptionUrlFromRequest(body: any): string {
-  const videoQuery = getDecodedVideoQuery(body['data']);
-  const translation = getTranslationParam(body['tlang']);
+async function getCaptionTrack(req: Request): Promise<string> {
+  const captionTrackUrl = getCaptionUrlFromRequest(req);
+  const captionTrackXml = await getCaptionTrackXml(captionTrackUrl);
+  return captionTrackXml;
+}
+
+function getCaptionUrlFromRequest(req: any): string {
+  const videoQuery = getDecodedVideoQuery(req.query['data']);
+  const translation = getTranslationParam(req.query['tlang']);
 
   if (!videoQuery) {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      "Missing parameter 'data'."
-    );
+    throw { code: 400, message: "Missing parameter 'data'." };
   }
 
   const captionTrackUrl = createCaptionTrackUrl(videoQuery, translation);
@@ -31,11 +36,15 @@ function getCaptionUrlFromRequest(body: any): string {
 }
 
 function getDecodedVideoQuery(data: string | undefined): string | undefined {
-  return data ? base64url.decode(data) : undefined;
+  try {
+    return !!data ? base64url.decode(data) : undefined;
+  } catch (error) {
+    throw { code: 500, message: 'Could not decode requested video.' };
+  }
 }
 
 function getTranslationParam(tlang: string | undefined): string {
-  return tlang ? `&tlang=${tlang}` : '';
+  return !!tlang ? `&tlang=${tlang}` : '';
 }
 
 function createCaptionTrackUrl(videoQuery: string, translation: string) {
@@ -54,27 +63,10 @@ async function getReadableStreamFromUrl(
 ): Promise<NodeJS.ReadableStream> {
   try {
     let response = await fetch(location);
-    return getReadableFromResponse(response);
+    let readableStream = getReadableFromResponse(response);
+    return readableStream;
   } catch (error) {
-    switch (error.code) {
-      case 400:
-        throw new functions.https.HttpsError(
-          'invalid-argument',
-          'A bad request was made to YouTube.'
-        );
-      case 403:
-        throw new functions.https.HttpsError(
-          'permission-denied',
-          `Access to YouTube was denied.`
-        );
-      case 404:
-        throw new functions.https.HttpsError(
-          'not-found',
-          `The YouTube video doesn't exist.`
-        );
-      default:
-        throw new functions.https.HttpsError('internal', 'An error occurred.');
-    }
+    throw error;
   }
 }
 
@@ -93,10 +85,10 @@ async function getRawTranscriptFromStream(
   try {
     return await getDataFromStream(stream);
   } catch (error) {
-    throw new functions.https.HttpsError(
-      'internal',
-      "Couldn't download transcript. Try again later."
-    );
+    throw {
+      code: 500,
+      message: "Couldn't download transcript. Try again later.",
+    };
   }
 }
 
@@ -113,10 +105,10 @@ function getDataFromStream(stream: NodeJS.ReadableStream): Promise<any> {
 async function parseTranscriptXml(unparsedXml: string): Promise<string> {
   let parsedXml = await parseXmlString(unparsedXml);
   if (!parsedXml) {
-    throw new functions.https.HttpsError(
-      'internal',
-      'We were unable to parse the transcript.'
-    );
+    throw {
+      code: 500,
+      message: 'We were unable to create the transcript. Please try again.',
+    };
   }
   let transcript = parsedXml.transcript;
   return transcript;
@@ -126,9 +118,41 @@ async function parseXmlString(unparsedXml: string): Promise<any> {
   try {
     return await parseStringPromise(unparsedXml);
   } catch (error) {
-    throw new functions.https.HttpsError(
-      'internal',
-      'Could not load transcript.'
-    );
+    throw {
+      code: 500,
+      message: 'Could not load the transcript.',
+      context: error,
+    };
   }
+}
+
+function respondWithCaptionTrack(
+  res: Response,
+  captionTrack: string
+): Response {
+  return res
+    .set({ 'Access-Control-Allow-Origin': '*' })
+    .status(200)
+    .send(captionTrack);
+}
+
+function respondWithError(res: Response, error: any): Response {
+  res = enableCors(res);
+  logErrorToConsole(error);
+
+  if (error.code) {
+    return res
+      .status(error.code)
+      .json({ error: error.code, error_message: error.message });
+  }
+
+  return res.status(500).json(error);
+}
+
+function logErrorToConsole(error: any): void {
+  console.error(`Error: ${JSON.stringify(error)}`);
+}
+
+function enableCors(res: Response): Response {
+  return res.set({ 'Access-Control-Allow-Origin': '*' });
 }
