@@ -2,7 +2,6 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-// Import the package verison
 import { version } from '../../package.json';
 
 export const environment = {
@@ -17,6 +16,7 @@ export const environment = {
     appId: '1:153388996756:web:08ac13df83b49a2eeb3c81',
     measurementId: 'G-C7XF9CKB3V',
   },
+  baseApiUrl: 'http://localhost:5001/transcript-app-290409/us-central1/',
   appVersion: version,
   stripe: {
     publishableKey:
