@@ -1,14 +1,14 @@
 import { Get } from 'firebase-backend';
 import { Request, Response } from 'express';
-import { decode } from 'urlencode';
 import { URLSearchParams } from 'url';
 import { context, Response as FetchResponse } from 'fetch-h2';
+
 const { fetch } = context({
   httpProtocol: 'http2',
 });
 
 /**
- * Create a caption interface object
+ * Create a caption interface
  */
 interface Caption {
   baseUrl: string; // the URL to the caption
@@ -29,7 +29,7 @@ interface TLang {
 /**
  * Create a response object for the CaptionsList
  */
-interface CaptionsList {
+interface CaptionsListResponse {
   videoTitle: string;
   captions: Caption[];
   translation_langs: TLang[];
@@ -38,24 +38,26 @@ interface CaptionsList {
 export default new Get(async (req: Request, res: Response) => {
   try {
     let captionsList = await getListOfVideoCaptions(req);
-    return captionsList;
+    return respondWithCaptionsList(res, captionsList);
   } catch (error) {
     return respondWithError(res, error);
   }
 });
 
-async function getListOfVideoCaptions(req: Request): Promise<CaptionsList> {
-  const { videoId } = getValidDataFromRequest(req);
+async function getListOfVideoCaptions(
+  req: Request
+): Promise<CaptionsListResponse> {
+  const videoId = getVideoIdFromRequest(req);
   const videoInfo = await getVideoInfo(videoId);
   const captionsList = getCaptionsFromVideoInfo(videoInfo);
   return captionsList;
 }
 
-function getValidDataFromRequest(req: Request): { videoId: string } {
+function getVideoIdFromRequest(req: Request): string {
   const videoId = <string>req.query['videoId'];
 
   if (videoIdValid(videoId)) {
-    return { videoId };
+    return videoId;
   }
 
   throw { code: 400, message: "Missing or invalid parameter 'videoId'." };
@@ -68,7 +70,7 @@ function videoIdValid(videoId: string | undefined): boolean {
 async function getVideoInfo(videoId: string): Promise<string> {
   let videoInfoStream = await getVideoInfoReadableStream(videoId);
   let videoInfoBuffer = await getVideoInfoBufferFromStream(videoInfoStream);
-  let videoInfo = decodeVideoInfoBuffer(videoInfoBuffer);
+  let videoInfo = convertBufferToString(videoInfoBuffer);
   return videoInfo;
 }
 
@@ -121,16 +123,16 @@ function createPromiseFromStream(stream: NodeJS.ReadableStream): Promise<any> {
   });
 }
 
-function decodeVideoInfoBuffer(buffer: Buffer): string {
-  const urlEncoded = buffer.toString();
-  const videoInfo = decode(urlEncoded);
-  return videoInfo;
+function convertBufferToString(buffer: Buffer): string {
+  const output = buffer.toString();
+  return output;
 }
 
-function getCaptionsFromVideoInfo(videoInfo: string): CaptionsList {
+function getCaptionsFromVideoInfo(videoInfo: string): CaptionsListResponse {
   const playerResponse = getPlayerResponseFromInfo(videoInfo);
+  console.log(playerResponse);
   const videoDetails = getVideoDetailsFromPlayerResponse(playerResponse);
-  const captions = getCaptionsFromVideoDetails(videoDetails);
+  const captions = getCaptionsFromPlayerResponse(playerResponse);
   const captionsList = createCaptionsList(captions, videoDetails);
   return captionsList;
 }
@@ -141,7 +143,7 @@ function getPlayerResponseFromInfo(videoInfo: string): any {
     try {
       return JSON.parse(playerResponse);
     } catch (error) {
-      throw { status: 500, message: videoInfo };
+      throw { code: 500, message: 'Could not load YouTube video info.' };
     }
   }
   throw { code: 404, message: "The YouTube video doesn't exist." };
@@ -149,7 +151,7 @@ function getPlayerResponseFromInfo(videoInfo: string): any {
 
 function findPlayerResponseInUrlParams(videoInfo: string): any {
   const urlParams = new URLSearchParams(videoInfo);
-  const playerResponse = urlParams.get('player_response');
+  let playerResponse = urlParams.get('player_response');
   return playerResponse;
 }
 
@@ -161,7 +163,7 @@ function getVideoDetailsFromPlayerResponse(playerResponse: any): any {
   throw { code: 404, message: "The YouTube video doesn't exist." };
 }
 
-function getCaptionsFromVideoDetails(videoDetails: any): any {
+function getCaptionsFromPlayerResponse(videoDetails: any): any {
   let captions = videoDetails.captions;
   if (captions) {
     return captions;
@@ -176,7 +178,7 @@ function getCaptionsFromVideoDetails(videoDetails: any): any {
 function createCaptionsList(
   captionsObject: any,
   videoDetails: any
-): CaptionsList {
+): CaptionsListResponse {
   try {
     const videoTitle = getVideoTitle(videoDetails);
     const translation_langs = getTranslationLanguages(captionsObject);
@@ -186,7 +188,6 @@ function createCaptionsList(
     throw {
       code: 500,
       message: 'Could not create list of caption tracks.',
-      context: error,
     };
   }
 }
@@ -246,14 +247,28 @@ function canCreateCaptions(captionTracks: any[]): boolean {
   return !!captionTracks && captionTracks.length > 0;
 }
 
+function respondWithCaptionsList(
+  res: Response,
+  captionsList: CaptionsListResponse
+): Response {
+  return res
+    .set({ 'Access-Control-Allow-Origin': '*' })
+    .status(200)
+    .json(captionsList);
+}
+
 function respondWithError(res: Response, error: any): Response {
   logErrorToConsole(error);
   if (error.code) {
     return res
+      .set({ 'Access-Control-Allow-Origin': '*' })
       .status(error.code)
       .json({ error: error.code, error_message: error.message });
   }
-  return res.status(500).send(error);
+  return res
+    .set({ 'Access-Control-Allow-Origin': '*' })
+    .status(500)
+    .send(error);
 }
 
 function logErrorToConsole(error: any): void {
