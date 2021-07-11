@@ -130,7 +130,6 @@ function convertBufferToString(buffer: Buffer): string {
 
 function getCaptionsFromVideoInfo(videoInfo: string): CaptionsListResponse {
   const playerResponse = getPlayerResponseFromInfo(videoInfo);
-  console.log(playerResponse);
   const videoDetails = getVideoDetailsFromPlayerResponse(playerResponse);
   const captions = getCaptionsFromPlayerResponse(playerResponse);
   const captionsList = createCaptionsList(captions, videoDetails);
@@ -204,7 +203,7 @@ function getTranslationLanguages(captionsObject: any): TLang[] {
     translationLanguages.forEach((translation: any) => {
       const tlang: TLang = {
         lang: translation.languageCode,
-        name: translation.languageName.simpleText,
+        name: translation.languageName.runs[0].text,
       };
       tlangs.push(tlang);
     });
@@ -229,7 +228,7 @@ function createCaptions(captionsObject: any): Caption[] {
         lang: track.languageCode,
         baseUrl: track.baseUrl,
         query: track.baseUrl.split('?')[1],
-        name: track.name.simpleText,
+        name: track.name.runs[0].text,
         kind: track.kind === 'asr' ? 'asr' : 'standard',
       };
 

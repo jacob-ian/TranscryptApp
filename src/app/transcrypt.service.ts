@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -55,9 +55,9 @@ export class TranscryptService {
 
   public async getCaptionsList(videoId: string): Promise<CaptionsList> {
     try {
-      return this.get(GET_CAPTION_LIST_URL, { videoId }).toPromise();
+      return await this.get(GET_CAPTION_LIST_URL, { videoId }).toPromise();
     } catch (error) {
-      throw { message: error.error_message };
+      throw error.error;
     }
   }
 
@@ -73,7 +73,10 @@ export class TranscryptService {
     translationLanguage: string
   ): Promise<Transcripts> {
     try {
-      return await this.get(GET_CAPTION_TRACK_URL, {})
+      return await this.get(GET_CAPTION_TRACK_URL, {
+        data: encodedBaseUrl,
+        tlang: translationLanguage,
+      })
         .pipe(
           map((captionTrack) => {
             return this.formatCaptionTrack(captionTrack);
@@ -81,8 +84,8 @@ export class TranscryptService {
         )
         .toPromise();
     } catch (error) {
-      if (error.error_message) {
-        throw { message: error.error_message };
+      if (error.error.error_message) {
+        throw { message: error.error.error_message };
       }
       throw { message: error.message };
     }
