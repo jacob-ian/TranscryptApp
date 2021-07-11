@@ -53,8 +53,12 @@ export class TranscryptService {
     this.baseApiUrl = environment.baseApiUrl;
   }
 
-  public getCaptionsList(videoId: string): Observable<CaptionsList> {
-    return this.get(GET_CAPTION_LIST_URL, { videoId });
+  public async getCaptionsList(videoId: string): Promise<CaptionsList> {
+    try {
+      return this.get(GET_CAPTION_LIST_URL, { videoId }).toPromise();
+    } catch (error) {
+      throw { message: error.error_message };
+    }
   }
 
   private get(
@@ -64,15 +68,24 @@ export class TranscryptService {
     return this.http.get(`${this.baseApiUrl}${urlExtension}`, { params });
   }
 
-  public getTranscript(
+  public async getTranscript(
     encodedBaseUrl: string,
     translationLanguage: string
-  ): Observable<Transcripts> {
-    return this.get(GET_CAPTION_TRACK_URL, {}).pipe(
-      map((captionTrack) => {
-        return this.formatCaptionTrack(captionTrack);
-      })
-    );
+  ): Promise<Transcripts> {
+    try {
+      return await this.get(GET_CAPTION_TRACK_URL, {})
+        .pipe(
+          map((captionTrack) => {
+            return this.formatCaptionTrack(captionTrack);
+          })
+        )
+        .toPromise();
+    } catch (error) {
+      if (error.error_message) {
+        throw { message: error.error_message };
+      }
+      throw { message: error.message };
+    }
   }
 
   private formatCaptionTrack(captionTrack: any): Transcripts {
