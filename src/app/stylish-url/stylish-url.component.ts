@@ -53,9 +53,8 @@ export class StylishUrlComponent implements ControlValueAccessor, OnInit {
 
   // Input and output variables for the captionsList binding
   @Input('captionsList') captionsList: CaptionsList;
-  @Output('captionsListChange') captionsListChange = new EventEmitter<
-    CaptionsList
-  >();
+  @Output('captionsListChange') captionsListChange =
+    new EventEmitter<CaptionsList>();
 
   // Input and output variables for the url binding
   @Input('url') url: string;

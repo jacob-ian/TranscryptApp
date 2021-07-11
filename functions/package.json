@@ -1,13 +1,14 @@
 {
   "name": "functions",
   "scripts": {
+    "clean": "rimraf lib/",
+    "prebuild": "npm run clean",
     "build": "tsc",
     "serve": "npm run build && DEVELOPMENT=true firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "dev": "tsc && firebase serve --only functions"
+    "logs": "firebase functions:log"
   },
   "engines": {
     "node": "12"
@@ -16,8 +17,10 @@
   "dependencies": {
     "@types/node": "^15.12.5",
     "base64url": "^3.0.1",
+    "express": "^4.17.1",
     "fetch-h2": "^2.5.1",
     "firebase-admin": "^9.10.0",
+    "firebase-backend": "^0.2.2",
     "firebase-functions": "^3.14.1",
     "stream-to-promise": "^3.0.0",
     "stripe": "^8.157.0",
@@ -30,7 +33,11 @@
     "@types/stream-to-promise": "^2.2.1",
     "@types/urlencode": "^1.1.2",
     "@types/xml2js": "^0.4.8",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "eslint": "^7.29.0",
     "firebase-functions-test": "^0.2.3",
+    "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^3.9.10"
   },

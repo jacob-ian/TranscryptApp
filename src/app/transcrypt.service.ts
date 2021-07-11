@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AngularFireFunctions } from '@angular/fire/functions';
-import { functions } from 'firebase';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+const GET_CAPTION_LIST_URL = '/captions-api/getCaptionsList';
+const GET_CAPTION_TRACK_URL = '/captions-api/getCaptionTrack';
 
 /**
  * Create a caption interface object
@@ -34,7 +38,7 @@ export interface CaptionsList {
 /**
  * The output object of the getTranscript method
  */
-interface TranscriptStrings {
+interface Transcripts {
   transcriptNoTime: string; // an HTML string without timestamps
   transcriptWithTime: string; // an HTML string with timestamps
 }
@@ -43,126 +47,85 @@ interface TranscriptStrings {
   providedIn: 'root',
 })
 export class TranscryptService {
-  // The caption track object with the transcript
-  private captionTrack: any;
+  private baseApiUrl: string;
 
-  constructor(private functions: AngularFireFunctions) {
-    // Determine the environment and use local functions otherwise
-    if (!environment.production) {
-      // Use local functions
-      this.functions.useFunctionsEmulator('http://localhost:5001');
-    }
+  constructor(private http: HttpClient) {
+    this.baseApiUrl = environment.baseApiUrl;
   }
 
-  /**
-   * Fetches the list of captions and translation languages for a YouTube video.
-   * @param videoId the YouTube video ID
-   * @returns a CaptionsList object in a promise
-   * @throws an error message
-   */
-  async getCaptionsList(videoId: string): Promise<CaptionsList> {
-    // Define the Firebase cloud function for getting the list of captions
-    var getCaptionsListFunc = this.functions.httpsCallable('getCaptionsList');
-
+  public async getCaptionsList(videoId: string): Promise<CaptionsList> {
     try {
-      // Call the Firebase function
-      return await getCaptionsListFunc({ videoId }).toPromise();
-    } catch (err) {
-      // Get the error message
-      const error: functions.HttpsError = err;
-
-      // Rethrow the message
-      throw { message: error.message };
+      return await this.get(GET_CAPTION_LIST_URL, { videoId }).toPromise();
+    } catch (error) {
+      throw { message: error.error.error_message };
     }
   }
 
-  /**
-   * Fetches the requested transcript as HTML strings with and without timestamps.
-   * @param encodedBaseUrl The urlencoded base URL of the captions track
-   * @param tlang the translation language
-   * @returns a TranscriptStrings object
-   * @throws an error message in an object
-   */
-  async getTranscript(
+  private get(
+    urlExtension: string,
+    params: { [param: string]: string | string[] }
+  ): Observable<any> {
+    return this.http.get(`${this.baseApiUrl}${urlExtension}`, { params });
+  }
+
+  public async getTranscript(
     encodedBaseUrl: string,
-    tlang: string
-  ): Promise<TranscriptStrings> {
-    // Fetch the caption track from the service method
+    translationLanguage: string
+  ): Promise<Transcripts> {
     try {
-      this.captionTrack = await this.getCaptionTrack(encodedBaseUrl, tlang);
-    } catch (err) {
-      // Rethrow the error
-      throw err;
+      return await this.getCaptionTrack(encodedBaseUrl, translationLanguage)
+        .pipe(
+          map((captionTrack) => {
+            return this.formatCaptionTrack(captionTrack);
+          })
+        )
+        .toPromise();
+    } catch (error) {
+      if (error.error.error_message) {
+        throw { message: error.error.error_message };
+      }
+      throw { message: JSON.stringify(error) };
     }
-
-    // Format the caption track for with and without timestamps
-    try {
-      var transcriptWithTime = this.formatTranscript(true);
-    } catch (err) {
-      // Rethrow the error
-      throw err;
-    }
-    try {
-      var transcriptNoTime = this.formatTranscript(false);
-    } catch (err) {
-      // Rethrow the error
-      throw err;
-    }
-
-    // Return the two HTML strings
-    const output: TranscriptStrings = {
-      transcriptNoTime,
-      transcriptWithTime,
-    };
-
-    return output;
   }
 
-  /**
-   * Fetches the transcript from the requested captions track/
-   * @param encodedBaseUrl the baseURL of the caption track provided by the CaptionsList
-   * @param tlang the language code of the translation if required
-   * @returns an object with the transcript.
-   */
-  private async getCaptionTrack(
-    encodedBaseUrl: string,
-    tlang: string
-  ): Promise<any> {
-    // Define the firebase function
-    var getCaptionTrackFunc = this.functions.httpsCallable('getCaptionTrack');
-
-    try {
-      // Call the firebase function
-      return await getCaptionTrackFunc({
-        data: encodedBaseUrl,
+  private getCaptionTrack(data: string, tlang: string): Observable<any> {
+    let params: any;
+    if (tlang) {
+      params = {
+        data,
         tlang,
-      }).toPromise();
-    } catch (err) {
-      // Get the error
-      const error: functions.HttpsError = err;
+      };
+    } else {
+      params = {
+        data,
+      };
+    }
+    return this.get(GET_CAPTION_TRACK_URL, params);
+  }
 
-      // Rethrow the error message
-      throw error.message;
+  private formatCaptionTrack(captionTrack: any): Transcripts {
+    try {
+      let transcriptNoTimestamps = this.formatTranscript(captionTrack, false);
+      let transcriptWithTimestamps = this.formatTranscript(captionTrack, true);
+      return {
+        transcriptWithTime: transcriptWithTimestamps,
+        transcriptNoTime: transcriptNoTimestamps,
+      };
+    } catch (error) {
+      throw { message: "Couldn't format the transcript." };
     }
   }
 
-  /**
-   * Format the transcript object into an HTML string
-   * @param timestamps true if timestamps are enabled, false otherwise
-   * @returns an HTML string
-   * @throws an error { message }
-   */
-  private formatTranscript(timestamps: boolean): string {
+  private formatTranscript(captionTrack: any, timestamps: boolean): string {
     // Create an output line
     var outputHtml = '';
 
     // Check for timestamps
     if (timestamps) {
-      // Get the length of the array
-      const length = this.captionTrack.text.length;
+      const length = captionTrack.text.length;
 
       // Find the bigget value of time in the array to determine the timestamp format
-      const maxTime = this.captionTrack.text[length - 1]['$'].start;
+      const maxTime = captionTrack.text[length - 1]['$'].start;
 
       // Check if there are any hours
       const maxHours = Math.floor(maxTime / 3600);
@@ -176,7 +139,7 @@ export class TranscryptService {
       }
 
       // Iterate over the transcript array items
-      this.captionTrack.text.forEach((line: any) => {
+      captionTrack.text.forEach((line: any) => {
         // Convert the time to something useful
         const time = line['$'].start;
 
@@ -226,7 +189,7 @@ export class TranscryptService {
       });
     } else {
       // Iterate over the transcript array items
-      this.captionTrack.text.forEach((line: string) => {
+      captionTrack.text.forEach((line: string) => {
         // Get the line
         outputHtml = `${outputHtml}<p>${line['_']}</p>`;
       });
@@ -236,39 +199,25 @@ export class TranscryptService {
     return outputHtml;
   }
 
-  /**
-   * Get's the Stripe client secret from the payment intent
-   * @param amount the payment amount in cents
-   * @param currency the currency of the payment
-   * @returns a string with the client secret
-   */
-  async getStripeClientSecret(
+  public async getStripeClientSecret(
     amount: number,
     currency: string
   ): Promise<string> {
-    // Define the firebase function
-    var createPaymentIntent = this.functions.httpsCallable(
-      'createPaymentIntent'
-    );
-
-    // Try get the payment intent
     try {
-      var paymentIntent = await createPaymentIntent({
+      let paymentIntent = await this.post('/payments-api/createPaymentIntent', {
         amount,
         currency,
       }).toPromise();
-    } catch (err) {
-      // Throw an error message
+      return paymentIntent.client_secret;
+    } catch (error) {
       throw {
         message:
-          'There was a problem with Stripe payments. No donation was taken.',
+          "Couldn't create Stripe Payment intent. Please try again later.",
       };
     }
+  }
 
-    // Get the client secret from the payment intent
-    const clientSecret = paymentIntent.client_secret;
-
-    // Return the secret
-    return clientSecret;
+  private post(urlExtension: string, body: any): Observable<any> {
+    return this.http.post(`${this.baseApiUrl}${urlExtension}`, body);
   }
 }
