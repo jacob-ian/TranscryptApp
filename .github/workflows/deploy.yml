@@ -15,28 +15,16 @@ jobs:
         with:
           node-version: "10.x"
       - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+        run: npm install -d firebase-tools
       - name: Install Release Dependencies
         run: npm run install:ci
       - name: Build Release for Deployment
         run: npm run build:ci
       - name: Add Environment Variables to the Back-End
-        run: firebase functions:config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
+        run: npx firebase functions:config:set stripe.secret=${{ secrets.STRIPE_BACKEND }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       - name: Deploy to Firebase
-        run: firebase deploy --only hosting,functions
+        run: npx firebase deploy --only hosting,functions --force
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-  notify:
-    needs: [deploy]
-    runs-on: ubuntu-latest
-    name: Post Deploy Status to Slack
-    steps:
-      - name: Slack Workflow Notifications
-        uses: Gamesight/slack-workflow-status@master
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          name: 'transcrypt.app Workflow Bot'
-          icon_url: 'https://transcrypt.app/assets/icons/android-chrome-192x192.png'
