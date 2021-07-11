@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import { Get } from 'firebase-backend';
 import { Request, Response } from 'express';
 import { decode } from 'urlencode';
@@ -52,20 +51,17 @@ async function getListOfVideoCaptions(req: Request): Promise<CaptionsList> {
   return captionsList;
 }
 
-function getValidDataFromRequest(request: Request): { videoId: string } {
-  const videoId = request.body.videoId;
+function getValidDataFromRequest(req: Request): { videoId: string } {
+  const videoId = <string>req.query['videoId'];
 
   if (videoIdValid(videoId)) {
     return { videoId };
   }
 
-  throw new functions.https.HttpsError(
-    'invalid-argument',
-    'YouTube Video ID required.'
-  );
+  throw { code: 400, message: "Missing or invalid parameter 'videoId'." };
 }
 
-function videoIdValid(videoId: string): boolean {
+function videoIdValid(videoId: string | undefined): boolean {
   return !!videoId && videoId.length === 11;
 }
 
@@ -140,9 +136,13 @@ function getCaptionsFromVideoInfo(videoInfo: string): CaptionsList {
 }
 
 function getPlayerResponseFromInfo(videoInfo: string): any {
-  const playerResponse = findPlayerResponseInUrlParams(videoInfo);
+  let playerResponse = findPlayerResponseInUrlParams(videoInfo);
   if (playerResponse) {
-    return JSON.parse(playerResponse);
+    try {
+      return JSON.parse(playerResponse);
+    } catch (error) {
+      throw { status: 500, message: videoInfo };
+    }
   }
   throw { code: 404, message: "The YouTube video doesn't exist." };
 }
@@ -249,11 +249,13 @@ function canCreateCaptions(captionTracks: any[]): boolean {
 function respondWithError(res: Response, error: any): Response {
   logErrorToConsole(error);
   if (error.code) {
-    return res.status(error.code).send(error.message);
+    return res
+      .status(error.code)
+      .json({ error: error.code, error_message: error.message });
   }
   return res.status(500).send(error);
 }
 
 function logErrorToConsole(error: any): void {
-  console.error(error);
+  console.error(`Error: ${JSON.stringify(error)}.`);
 }
